@@ -30,6 +30,7 @@ package com.github.mefisto94.RedstoneGate;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -48,6 +49,9 @@ public class BlockRedstoneGate extends BlockContainer {
         super(i, 6, Material.GLASS);
         super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
         this.renderAsItem = false;
+        setRegistryName("redstonegate", "gate");
+        setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
+        setCreativeTab(CreativeTabs.REDSTONE);
     }
 
     @Override

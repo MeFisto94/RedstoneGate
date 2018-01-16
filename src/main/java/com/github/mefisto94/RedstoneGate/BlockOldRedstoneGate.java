@@ -1,12 +1,16 @@
 package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockOldRedstoneGate extends BlockRedstoneGate {
     protected BlockOldRedstoneGate(int i) {
         super(i);
+        setRegistryName("redstonegate", "old-gate");
+        setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
+        setCreativeTab(CreativeTabs.REDSTONE);
     }
 
     @Override

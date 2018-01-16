@@ -1,19 +1,11 @@
 package com.github.mefisto94.RedstoneGate;
 
-import com.github.mefisto94.RedstoneGate.blocks.FastRedstoneTorchBlock;
-import com.github.mefisto94.RedstoneGate.blocks.FastRepeaterBlock;
-import com.github.mefisto94.RedstoneGate.blocks.UnlimitedBlockRedstoneWire;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockRedstoneWire;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -24,23 +16,25 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Mod(modid = RedstoneGate.MODID, version = RedstoneGate.VERSION)
 public class RedstoneGate
 {
     public static final String MODID = "redstonegate";
     public static final String VERSION = "1.0";
-    public static final FastRepeaterBlock FAST_REPEATER_BLOCK_UNPOWERED = new FastRepeaterBlock(false);
-    public static final FastRepeaterBlock FAST_REPEATER_BLOCK_POWERED = new FastRepeaterBlock(true);
-    public static final UnlimitedBlockRedstoneWire UNL_BLOCK_REDSTONE_WIRE = new UnlimitedBlockRedstoneWire();
-    public static final FastRedstoneTorchBlock FAST_TORCH_BLOCK_UNLIT = new FastRedstoneTorchBlock(false);
-    public static final FastRedstoneTorchBlock FAST_TORCH_BLOCK_LIT = new FastRedstoneTorchBlock(true);
-    //public static final ItemBlockSpecial ITEM_BLOCK_REPEATER = new ItemBlockSpecial(FAST_REPEATER_BLOCK_UNPOWERED);
-    public static ItemBlock ITEM_BLOCK_REPEATER = new ItemBlock(FAST_REPEATER_BLOCK_UNPOWERED);
-    public static ItemBlock ITEM_BLOCK_UNL_WIRE = new ItemBlock(UNL_BLOCK_REDSTONE_WIRE);
-    public static final ItemBlock ITEM_BLOCK_TORCH = new ItemBlock(FAST_TORCH_BLOCK_LIT);
-    public static final int WEAK_POWER = 999;
+    public static final Logger LOG = Logger.getLogger(RedstoneGate.class.getSimpleName());
+
+    // Configuration
+    public static Configuration config;
+    public static int conf_colorOn  = 0x006000;
+    public static int conf_colorOff = 0x600000;
+    public static int conf_colorIO  = 0x606000;
+
+    // Blocks
+    public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate(0);
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate(0);
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
@@ -48,9 +42,13 @@ public class RedstoneGate
 
     @EventHandler
     public void PreInit(FMLPreInitializationEvent event) {
-        GameRegistry.register(FAST_REPEATER_BLOCK_POWERED);
-        GameRegistry.register(FAST_REPEATER_BLOCK_UNPOWERED);
-        GameRegistry.register(UNL_BLOCK_REDSTONE_WIRE);
+        config = new Configuration(event.getSuggestedConfigurationFile());
+        syncConfig();
+
+        GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
+        GameRegistry.register(BLOCK_REDSTONE_GATE);
+
+
         GameRegistry.register(FAST_TORCH_BLOCK_UNLIT);
         GameRegistry.register(FAST_TORCH_BLOCK_LIT);
         ITEM_BLOCK_REPEATER.setRegistryName(FAST_REPEATER_BLOCK_UNPOWERED.getRegistryName());
@@ -74,20 +72,6 @@ public class RedstoneGate
     @EventHandler
     @SideOnly(Side.CLIENT)
     public void Init_ClientOnly(FMLInitializationEvent event) {
-        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(new IBlockColor() {
-            @Override
-            public int colorMultiplier(IBlockState state, @Nullable IBlockAccess worldIn, @Nullable BlockPos pos, int tintIndex) {
-                //int pwr = ((PropertyInteger)(state.getProperties().get(BlockRedstoneWire.POWER))).
-                int pwr = state.getValue(BlockRedstoneWire.POWER).intValue();
-
-                if (pwr == 0) {
-                    return 0x000d22;
-                } else {
-                    return mixColors(0x000d55, 0x000dff, pwr / 15f);
-                }
-
-            }
-        }, UNL_BLOCK_REDSTONE_WIRE);
     }
 
     @SubscribeEvent
@@ -100,14 +84,22 @@ public class RedstoneGate
         System.out.println("REGISTER ITEMS");
     }
 
-    public static int mixColors(int a, int b, float ratio){
-        int mask1 = 0x00ff00ff;
-        int mask2 = 0xff00ff00;
+    public static void syncConfig() {
+        try {
+            config.load();
+            Property propColorOn = config.get(Configuration.CATEGORY_CLIENT, "colorOn", 0x006000, "Which Color to use for Enabled Elements");
+            Property propColorOff = config.get(Configuration.CATEGORY_CLIENT, "colorOff", 0x600000, "Which Color to use for Disabled Elements");
+            Property propColorIO = config.get(Configuration.CATEGORY_CLIENT, "colorIO", 0x606000, "Which Color to use for IO Elements");
 
-        int f2 = (int)(256 * ratio);
-        int f1 = 256 - f2;
-
-        return (((((a & mask1) * f1) + ((b & mask1) * f2)) >> 8) & mask1)
-                | (((((a & mask2) * f1) + ((b & mask2) * f2)) >> 8) & mask2);
+            conf_colorOn = propColorOn.getInt();
+            conf_colorOff = propColorOff.getInt();
+            conf_colorIO = propColorIO.getInt();
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Exception thrown during the attempt to read the config!", e);
+        } finally {
+            if (config.hasChanged()) {
+                config.save();
+            }
+        }
     }
 }

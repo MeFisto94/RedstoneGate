@@ -265,7 +265,7 @@ public class GuiRedstoneGate extends GuiContainer {
     private void drawGridCell(final int input, final int output, final int offset, final int width) {
         final boolean isSet = (this.entityGate.truthTable >> this.input_range * output + input & 0x1) != 0x0;
         final String s = Integer.toBinaryString(input);
-        this.drawCellString("00000".substring(0, width - s.length()) + s, 99 + offset + input % 4 * 18, 26 + (output * this.rows_per_output + input / 4) * 18, isSet ? mod_RedstoneGate.colourOn : mod_RedstoneGate.colourOff);
+        this.drawCellString("00000".substring(0, width - s.length()) + s, 99 + offset + input % 4 * 18, 26 + (output * this.rows_per_output + input / 4) * 18, isSet ? RedstoneGate.conf_colorOn : RedstoneGate.conf_colorOff);
     }
 
     private void drawInputString(final int input, final int x, final int y, final boolean isOutput, final boolean isInput) {
@@ -291,8 +291,8 @@ public class GuiRedstoneGate extends GuiContainer {
         final int scaledX = 20 * x / 13;
         final int scaledY = 20 * y / 13;
         final boolean toprow = GuiRedstoneGate.input_locations[input][1] == 0;
-        final int colour = isOutput ? (isInput ? mod_RedstoneGate.colourIO : mod_RedstoneGate.colourOff) : (isInput ? mod_RedstoneGate.colourOn : 4210752);
-        fontRendererObj.drawString(this.sides[input], scaledX, scaledY + (toprow ? -9 : 28), colour);
+        final int color = isOutput ? (isInput ? RedstoneGate.conf_colorIO : RedstoneGate.conf_colorOff) : (isInput ? RedstoneGate.conf_colorOn : 4210752);
+        fontRendererObj.drawString(this.sides[input], scaledX, scaledY + (toprow ? -9 : 28), color);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
         GL11.glScalef(0.75f, 0.75f, 1.0f);
@@ -327,8 +327,8 @@ public class GuiRedstoneGate extends GuiContainer {
         fontRendererObj.drawString("Redstone gate", 8, 8, 4210752);
         GL11.glPushMatrix();
         GL11.glScalef(0.75f, 0.75f, 1.0f);
-        fontRendererObj.drawString("Inputs/Outputs", 10, 34, mod_RedstoneGate.colourOff);
-        fontRendererObj.drawString("Inputs", 10, 34, mod_RedstoneGate.colourOn);
+        fontRendererObj.drawString("Inputs/Outputs", 10, 34, RedstoneGate.conf_colorOff);
+        fontRendererObj.drawString("Inputs", 10, 34, RedstoneGate.conf_colorOn);
         fontRendererObj.drawString("Auto config", 10, 134, 4210752);
         GL11.glPopMatrix();
         GL11.glPushMatrix();

@@ -14,97 +14,10 @@ import net.minecraft.world.IBlockAccess;
 public class mod_RedstoneGate extends BaseMod
 {
     public static int renderID;
-    public static final File cfgdir;
-    public static final File cfgfile;
-    public static final String CONFIG_HEADER;
-    public static final Properties config;
     public static final int blockID;
     public static int oldBlockID;
-    public static final int colourOn;
-    public static final int colourOff;
-    public static final int colourIO;
     public static final Block redstoneGate;
     public static Block oldGateBlock;
-
-    private static int getConfigKey(final String key, final boolean isHex) {
-        final String value = mod_RedstoneGate.config.getProperty(key);
-        try {
-            return isHex ? Integer.parseInt(value, 16) : Integer.parseInt(value);
-        }
-        catch (NumberFormatException e) {
-            System.out.println("Configuration file content is invalid, reverting to defaults.");
-            setDefaultConfig(mod_RedstoneGate.config);
-            saveConfig(mod_RedstoneGate.config);
-            return getConfigKey(key, isHex);
-        }
-    }
-
-    private static void setDefaultConfig(final Properties properties) {
-        properties.clear();
-        properties.setProperty("blockID", "129");
-        properties.setProperty("oldBlockID", "129");
-        properties.setProperty("colourOn", "6000");
-        properties.setProperty("colourOff", "600000");
-        properties.setProperty("colourInputOutput", "606000");
-    }
-
-    private static void saveConfig(final Properties config) {
-        try {
-            final FileOutputStream out = new FileOutputStream(mod_RedstoneGate.cfgfile);
-            config.store(out, mod_RedstoneGate.CONFIG_HEADER);
-            out.close();
-        }
-        catch (IOException e) {
-            System.out.println("Error while writing configuration file:");
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private static void loadConfig(final Properties config) {
-        try {
-            final FileInputStream in = new FileInputStream(mod_RedstoneGate.cfgfile);
-            config.load(in);
-            in.close();
-        }
-        catch (IOException e) {
-            System.out.println("Error while reading config file:");
-            System.out.println(e.getMessage());
-            setDefaultConfig(config);
-        }
-    }
-
-    private static Properties getConfig() {
-        final Properties config = new Properties();
-        mod_RedstoneGate.cfgdir.mkdir();
-        if (mod_RedstoneGate.cfgfile.exists()) {
-            if (mod_RedstoneGate.cfgfile.canRead()) {
-                loadConfig(config);
-            }
-            else {
-                System.out.println("Could not read the configuration file, using defaults.");
-                setDefaultConfig(config);
-            }
-        }
-        else {
-            setDefaultConfig(config);
-            try {
-                if (!mod_RedstoneGate.cfgfile.createNewFile()) {
-                    System.out.println("Could not find nor create the configuration file, using defaults.");
-                }
-                else if (mod_RedstoneGate.cfgfile.canWrite()) {
-                    saveConfig(config);
-                }
-                else {
-                    System.out.println("Could not write configuration file.");
-                }
-            }
-            catch (IOException e) {
-                System.out.println("IO error:");
-                System.out.println(e.getMessage());
-            }
-        }
-        return config;
-    }
 
     public void renderInvBlock(final RenderBlocks renderblocks, final Block block, final int i, final int j) {
         if (j == mod_RedstoneGate.renderID) {
@@ -187,15 +100,6 @@ public class mod_RedstoneGate extends BaseMod
     }
 
     static {
-        cfgdir = new File(Minecraft.getMinecraft()., "config");
-        cfgfile = new File(mod_RedstoneGate.cfgdir, "RedstoneGate.cfg");
-        CONFIG_HEADER = String.format("RedstoneGate configuration\n%s\n%s\n%s\n%s\n%s", "# Change blockID into a free block ID to resolve conflicts with other mods.", "# setting oldBlockID to any value different from blockID will assume that ID is a RedstoneGate block", "# and will replace it by the new blockID whenever the block is rendered.", "# The colourOn and colourOff values allow the colours of the truth table outputs to be modified", "# Format: RRGGBB, base 16 (i.e. hexadecimal)!");
-        config = getConfig();
-        blockID = getConfigKey("blockID", false);
-        mod_RedstoneGate.oldBlockID = getConfigKey("oldBlockID", false);
-        colourOn = getConfigKey("colourOn", true);
-        colourOff = getConfigKey("colourOff", true);
-        colourIO = getConfigKey("colourInputOutput", true);
         redstoneGate = new BlockRedstoneGate(mod_RedstoneGate.blockID).c(1.5f).a(0.0f).a("RedstoneGate");
         mod_RedstoneGate.oldGateBlock = null;
     }
