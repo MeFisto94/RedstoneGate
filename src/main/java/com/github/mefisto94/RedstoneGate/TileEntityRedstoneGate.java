@@ -26,9 +26,13 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public static final Block BLOCK_REDSTONE_WIRE = Blocks.REDSTONE_WIRE;
     public static final int[] HAMM_WEIGHT_3 = new int[]{0, 1, 1, 2, 1, 2, 2, 3};
     public static final int[][] relative_to_absolute_direction = new int[][]{{4, 5, 2, 3, 1, 0}, {2, 3, 5, 4, 1, 0}, {5, 4, 3, 2, 1, 0}, {3, 2, 4, 5, 1, 0}};
+
+    // The actual data
     public byte inputMask = 0;
     public byte outputMask = 63;
     public int truthTable = 0;
+    public byte delay = 0;
+
     public byte outputVector = 0;
     public boolean canUpdate = true;
 
@@ -41,8 +45,8 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     public String getConfigString() {
-        int meta = worldObj.getBlockMetadata(getPos().getX(), getPos().getY(), getPos().getZ());
-        return String.format("%02x%02x-%08x-%01x", this.inputMask & 63, this.outputMask & 63, this.truthTable, meta);
+        //int meta = worldObj.getBlockMetadata(getPos().getX(), getPos().getY(), getPos().getZ());
+        return String.format("%02x%02x-%08x-%01x", inputMask & 63, outputMask & 63, truthTable, delay % 16);
     }
 
     public boolean setConfigString(String s) {
@@ -54,10 +58,11 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
             if (this.isInvalidConfig(im, om)) {
                 return false;
             }
-            this.inputMask = (byte)im;
-            this.outputMask = (byte)om;
-            this.truthTable = (int)tt;
-            worldObj.setBlockMetadata(getPos().getX(), getPos().getY(), getPos().getZ(), meta);
+
+            inputMask = (byte)im;
+            outputMask = (byte)om;
+            truthTable = (int)tt;
+            delay = (byte)meta;
             return true;
         }
         catch (NumberFormatException e) {
@@ -192,7 +197,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         for (int d = 5; 0 <= d; --d) {
             if ((this.inputMask & 1 << d) == 0) continue;
             bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (this.isSidePowered(world, new BlockPos(i, j, k), dirmap[d]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
+            index = index << 1 | (this.isSidePowered(world, new BlockPos(i, j, k), EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
         }
         this.outputVector = 0;
         long table = this.truthTable & -1;
@@ -206,20 +211,22 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-        super.writeToNBT(nbttagcompound);
-        nbttagcompound.setByte("inputs", this.inputMask);
-        nbttagcompound.setByte("outputs", this.outputMask);
-        nbttagcompound.setInteger("table", this.truthTable);
-        return nbttagcompound;
+    public NBTTagCompound writeToNBT(NBTTagCompound nbtTagCompound) {
+        super.writeToNBT(nbtTagCompound);
+        nbtTagCompound.setByte("delay", delay);
+        nbtTagCompound.setByte("inputs", inputMask);
+        nbtTagCompound.setByte("outputs", outputMask);
+        nbtTagCompound.setInteger("table", truthTable);
+        return nbtTagCompound;
     }
 
-    public void readFromNBT(NBTTagCompound nbttagcompound) {
-        super.readFromNBT(nbttagcompound);
-        this.inputMask = nbttagcompound.getByte("inputs");
-        this.truthTable = nbttagcompound.getInteger("table");
-        if (nbttagcompound.hasKey("outputs")) {
-            this.outputMask = nbttagcompound.getByte("outputs");
+    public void readFromNBT(NBTTagCompound nbtTagCompound) {
+        super.readFromNBT(nbtTagCompound);
+        inputMask = nbtTagCompound.getByte("inputs");
+        delay = nbtTagCompound.getByte("delay");
+        truthTable = nbtTagCompound.getInteger("table");
+        if (nbtTagCompound.hasKey("outputs")) {
+            this.outputMask = nbtTagCompound.getByte("outputs");
             return;
         }
         this.outputMask = (byte)(~ this.inputMask & 63);
@@ -259,8 +266,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (i == 44) {
             // j != 0 signalizes to reduce the delay by one, j == 0 increase delay
-            int delay = (getBlockMetadata() + (j == 0 ? 1 : DELAY_DECR)) % MAX_DELAY;
-            worldObj.setMetadata(getPos().getX(), getPos().getY(), getPos().getZ(), delay);
+            delay = (byte)((getBlockMetadata() + (j == 0 ? 1 : DELAY_DECR)) % MAX_DELAY);
             return null;
         }
         if (38 <= i) {

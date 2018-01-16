@@ -223,7 +223,7 @@ public class GuiRedstoneGate extends GuiContainer {
     }
 
     public void addDelaySlot() {
-        final String d = Integer.toString(this.entityGate.getBlockMetadata());
+        final String d = Integer.toString(this.entityGate.delay);
         final int offset = (18 - fontRendererObj.getStringWidth(d)) / 2;
         fontRendererObj.drawString("Delay:", 4 * (99 - this.computeCellContentWidth("Delay") - 36) / 3, 202, 4210752);
         container.addSlot(new Slot((IInventory)this.entityGate, 44, 71, 146));

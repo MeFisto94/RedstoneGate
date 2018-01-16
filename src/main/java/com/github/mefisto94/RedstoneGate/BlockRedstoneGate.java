@@ -115,24 +115,16 @@ public class BlockRedstoneGate extends BlockContainer {
         }
 
         BlockPos pos = new BlockPos(x, y, z);
-        /*world.j(x, y - 1, z, this.blockid);
-        world.j(x, y + 1, z, this.blockid);
-        world.j(x - 1, y, z, this.blockid);
-        world.j(x + 1, y, z, this.blockid);
-        world.j(x, y, z - 1, this.blockid);
-        world.j(x, y, z + 1, this.blockid);*/
         world.notifyNeighborsOfStateChange(pos, this);
         world.notifyBlockOfStateChange(pos, this);
 
-        int delay = world.getBlockMetadata(x, y, z);
+        int delay = tile_entity.delay;
         world.scheduleBlockUpdate(pos, this, delay == 0 ? 2 : delay * 2, -1);
     }
 
     public boolean isIndirectlyPoweringTo(World world, int x, int y, int z, int side) {
         return shouldSideBeRendered(this.getDefaultState(), (IBlockAccess)world, new BlockPos(x, y, z), EnumFacing.VALUES[side]);
     }
-
-
 
     public boolean isPoweringTo(IBlockAccess iblockaccess, BlockPos pos, int side) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)iblockaccess.getTileEntity(pos);
@@ -158,7 +150,7 @@ public class BlockRedstoneGate extends BlockContainer {
         }
 
         tile_entity.canUpdate = false;
-        int delay = world.getBlockMetadata(x, y, z);
+        int delay = tile_entity.delay;
         ((World) world).scheduleBlockUpdate(pos, this, delay * 2, -1);
     }
 
