@@ -45,7 +45,7 @@ public class BlockRedstoneGate extends BlockContainer {
 
     protected BlockRedstoneGate() {
         // blockIndexInTexture = 6
-        super(Material.GLASS, 6);
+        super(Material.GLASS);
         super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
         this.renderAsItem = false;
         setRegistryName("redstonegate", "gate");

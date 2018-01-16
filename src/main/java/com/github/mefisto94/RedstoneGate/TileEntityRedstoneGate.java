@@ -1,5 +1,6 @@
 package com.github.mefisto94.RedstoneGate;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -17,7 +18,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public static final int OP_NEG = 3;
     public static final int OP_ON = 4;
     public static final int OP_OFF = 5;
-    public static final int wireID = Blocks.REDSTONE_WIRE.blockId;
+    public static final Block BLOCK_REDSTONE_WIRE = Blocks.REDSTONE_WIRE;
     public static final int[] HAMM_WEIGHT_3 = new int[]{0, 1, 1, 2, 1, 2, 2, 3};
     public static final int[][] relative_to_absolute_direction = new int[][]{{4, 5, 2, 3, 1, 0}, {2, 3, 5, 4, 1, 0}, {5, 4, 3, 2, 1, 0}, {3, 2, 4, 5, 1, 0}};
     public byte inputMask = 0;
@@ -35,7 +36,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     public String getConfigString() {
-        int meta = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
+        int meta = worldObj.getBlockMetadata(getPos().getX(), getPos().getY(), getPos().getZ());
         return String.format("%02x%02x-%08x-%01x", this.inputMask & 63, this.outputMask & 63, this.truthTable, meta);
     }
 
@@ -51,7 +52,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
             this.inputMask = (byte)im;
             this.outputMask = (byte)om;
             this.truthTable = (int)tt;
-            worldObj.setBlockMetadata(xCoord, yCoord, zCoord, meta);
+            worldObj.setBlockMetadata(getPos().getX(), getPos().getY(), getPos().getZ(), meta);
             return true;
         }
         catch (NumberFormatException e) {
@@ -152,7 +153,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     private boolean isPoweredWire(World world, int x, int y, int z) {
-        if (world.getBlockId(x, y, z) != wireID) return false;
+        if (world.getBlockId(x, y, z) != BLOCK_REDSTONE_WIRE) return false;
         if (world.getBlockMetadata(x, y, z) == 0) return false;
         return true;
     }
@@ -262,7 +263,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (i == 44) {
             int delay = (getBlockMetadata() + (j == 0 ? 1 : 15)) % 16;
-            worldObj.setMetadata(xCoord, yCoord, zCoord, delay);
+            worldObj.setMetadata(getPos().getX(), getPos().getY(), getPos().getZ(), delay);
             return null;
         }
         if (38 <= i) {
@@ -303,18 +304,18 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     public boolean canInteractWith(EntityPlayer entityplayer) {
-        if (worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this) {
+        if (worldObj.getBlockTileEntity(getPos().getX(), getPos().getY(), getPos().getZ()) != this) {
             return false;
         }
-        if (entityplayer.getDistanceSq((double)xCoord + 0.5, (double)yCoord + 0.5, (double)zCoord + 0.5) > 64.0) return false;
+        if (entityplayer.getDistanceSq((double)getPos().getX() + 0.5, (double)getPos().getY() + 0.5, (double)getPos().getZ() + 0.5) > 64.0) return false;
         return true;
     }
 
     public boolean a_(EntityPlayer entityplayer) {
-        if (worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this) {
+        if (worldObj.getBlockTileEntity(getPos().getX(), getPos().getY(), getPos().getZ()) != this) {
             return false;
         }
-        if (entityplayer.getDistanceSq((double)xCoord + 0.5, (double)yCoord + 0.5, (double)zCoord + 0.5) > 64.0) return false;
+        if (entityplayer.getDistanceSq((double) getPos().getX() + 0.5, (double)getPos().getY() + 0.5, (double) getPos().getZ() + 0.5) > 64.0) return false;
         return true;
     }
 

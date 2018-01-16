@@ -142,7 +142,7 @@ public class GuiRedstoneGate extends GuiContainer {
         }
         else if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             mc.thePlayer.closeScreen();
-            this.updateNeighbours(this.entityGate.xCoord, this.entityGate.yCoord, this.entityGate.zCoord, mod_RedstoneGate.blockID);
+            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), mod_RedstoneGate.blockID);
         }
         else if (0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
             this.code_entry = true;
