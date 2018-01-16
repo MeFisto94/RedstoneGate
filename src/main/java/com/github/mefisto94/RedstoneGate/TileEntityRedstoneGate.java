@@ -1,12 +1,17 @@
 package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRedstoneWire;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class TileEntityRedstoneGate extends TileEntity implements IInventory {
@@ -152,44 +157,30 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         this.truthTable = (int)table;
     }
 
-    private boolean isPoweredWire(World world, int x, int y, int z) {
-        if (world.getBlockId(x, y, z) != BLOCK_REDSTONE_WIRE) return false;
-        if (world.getBlockMetadata(x, y, z) == 0) return false;
-        return true;
+    private boolean isPoweredWire(World world, BlockPos pos) {
+        IBlockState wireState = world.getBlockState(pos);
+        return wireState.getBlock() == BLOCK_REDSTONE_WIRE &&
+            (wireState.getValue(BlockRedstoneWire.POWER) != 0);
     }
 
-    private boolean isSidePowered(World world, int x, int y, int z, int direction) {
-        switch (direction) {
-            case 0: {
-                if (this.isPoweredWire(world, x, y + 1, z)) return true;
-                if (world.markBlockAsNeedsUpdate(x, y + 1, z, 1)) return true;
-                return false;
-            }
-            case 1: {
-                if (this.isPoweredWire(world, x, y - 1, z)) return true;
-                if (world.markBlockAsNeedsUpdate(x, y - 1, z, 0)) return true;
-                return false;
-            }
-            case 2: {
-                if (this.isPoweredWire(world, x, y, z + 1)) return true;
-                if (world.markBlockAsNeedsUpdate(x, y, z + 1, 3)) return true;
-                return false;
-            }
-            case 3: {
-                if (this.isPoweredWire(world, x, y, z - 1)) return true;
-                if (world.markBlockAsNeedsUpdate(x, y, z - 1, 2)) return true;
-                return false;
-            }
-            case 4: {
-                if (this.isPoweredWire(world, x + 1, y, z)) return true;
-                if (world.markBlockAsNeedsUpdate(x + 1, y, z, 5)) return true;
-                return false;
-            }
-            case 5: {
-                if (this.isPoweredWire(world, x - 1, y, z)) return true;
-                if (world.markBlockAsNeedsUpdate(x - 1, y, z, 4)) return true;
-                return false;
-            }
+    /**
+     * Determine if this side is powered....
+     * Note: direction is pairwise swapped with EnumFacing, as you can see.
+     * This is our internal convention here, we leave it at this stage and might refactor it at a later point.
+     *
+     * @param world
+     * @param pos
+     * @param direction
+     * @return
+     */
+    private boolean isSidePowered(World world, BlockPos pos, EnumFacing direction) {
+        EnumFacing opposite = direction.getOpposite(); // Because of our wierd logic
+        BlockPos newPos = pos.offset(opposite);
+        if (this.isPoweredWire(world, newPos)) {
+            return true;
+        }
+        if (world.markBlockAsNeedsUpdate(newPos, opposite.getIndex)) {
+            return true;
         }
         return false;
     }
@@ -201,7 +192,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         for (int d = 5; 0 <= d; --d) {
             if ((this.inputMask & 1 << d) == 0) continue;
             bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (this.isSidePowered(world, i, j, k, dirmap[d]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
+            index = index << 1 | (this.isSidePowered(world, new BlockPos(i, j, k), dirmap[d]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
         }
         this.outputVector = 0;
         long table = this.truthTable & -1;

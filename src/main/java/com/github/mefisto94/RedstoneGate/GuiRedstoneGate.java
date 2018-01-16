@@ -1,10 +1,12 @@
 package com.github.mefisto94.RedstoneGate;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 public class GuiRedstoneGate extends GuiContainer {
@@ -89,14 +91,11 @@ public class GuiRedstoneGate extends GuiContainer {
         GuiRedstoneGate.status_timer = 256;
     }
 
-    protected void updateNeighbours(final int x, final int y, final int z, final int blockID) {
-        mc.theWorld.notifyBlocksOfNeighborChange(x, y - 1, z, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x, y + 1, z, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x - 1, y, z, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x + 1, y, z, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x, y, z - 1, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x, y, z + 1, blockID);
-        mc.theWorld.notifyBlocksOfNeighborChange(x, y, z, blockID);
+
+    protected void updateNeighbours(final int x, final int y, final int z, final Block blockType) {
+        BlockPos pos = new BlockPos(x, y, z);
+        mc.theWorld.notifyNeighborsOfStateChange(pos, blockType);
+        mc.theWorld.notifyBlockOfStateChange(pos, blockType);
     }
 
     private void codeKeyTyped(final char c, final int i) {
@@ -142,7 +141,7 @@ public class GuiRedstoneGate extends GuiContainer {
         }
         else if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             mc.thePlayer.closeScreen();
-            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), mod_RedstoneGate.blockID);
+            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), RedstoneGate.BLOCK_REDSTONE_GATE);
         }
         else if (0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
             this.code_entry = true;

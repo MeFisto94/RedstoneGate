@@ -2,6 +2,7 @@ package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -41,7 +42,8 @@ public class BlockOldRedstoneGate extends BlockRedstoneGate {
             }
         }
 
-        if (iblockaccess.getBlockId(x, y, z) != mod_RedstoneGate.oldBlockID) {
+        /* This method seems to update all old blocks, so maybe we don't need it? */
+        if (iblockaccess.getBlockState(new BlockPos(x, y, z)).getBlock() != RedstoneGate.BLOCK_OLD_REDSTONE_GATE) {
             return false;
         }
 
@@ -55,17 +57,17 @@ public class BlockOldRedstoneGate extends BlockRedstoneGate {
             System.out.println("null World");
             return false;
         }
-        TileEntityRedstoneGate old_entity = (TileEntityRedstoneGate)iblockaccess.getBlockTileEntity(x, y, z);
+        TileEntityRedstoneGate old_entity = (TileEntityRedstoneGate)iblockaccess.getTileEntity(new BlockPos(x, y, z));
         int tt = old_entity.truthTable;
         byte im = old_entity.inputMask;
         byte ov = old_entity.outputVector;
         System.out.println("Replacing instance");
-        world.setBlock(x, y, z, mod_RedstoneGate.blockID);
-        TileEntityRedstoneGate new_entity = (TileEntityRedstoneGate)iblockaccess.getBlockTileEntity(x, y, z);
+        world.setBlockState(new BlockPos(x, y, z), RedstoneGate.BLOCK_REDSTONE_GATE.getDefaultState());
+        TileEntityRedstoneGate new_entity = (TileEntityRedstoneGate)iblockaccess.getTileEntity(new BlockPos(x, y, z));
         new_entity.truthTable = tt;
         new_entity.inputMask = im;
         new_entity.outputVector = ov;
-        if (iblockaccess.getBlockId(x, y, z) != mod_RedstoneGate.blockID) return false;
-        return true;
+
+        return iblockaccess.getBlockState(new BlockPos(x, y, z)).getBlock() == RedstoneGate.BLOCK_REDSTONE_GATE;
     }
 }
