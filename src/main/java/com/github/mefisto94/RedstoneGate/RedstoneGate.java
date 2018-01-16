@@ -33,8 +33,8 @@ public class RedstoneGate
     public static int conf_colorIO  = 0x606000;
 
     // Blocks
-    public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate(0);
-    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate(0);
+    public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate();
 
     @EventHandler
     public void init(FMLInitializationEvent event) {

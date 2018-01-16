@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4eef6be6-1735-49bb-94cb-6e71e3c0999d" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/01_Redstone_Gate.iws" afterPath="$PROJECT_DIR$/01_Redstone_Gate.iws" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java" afterPath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java" afterPath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/GuiRedstoneGate.java" afterPath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/GuiRedstoneGate.java" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java" afterPath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/mod_RedstoneGate.java" afterPath="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/mod_RedstoneGate.java" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/assets/redstonegate/lang/en_US.lang" afterPath="$PROJECT_DIR$/src/main/resources/assets/redstonegate/lang/en_US.lang" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -76,8 +74,8 @@
       <file leaf-file-name="RedstoneGate.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1088">
-              <caret line="91" column="90" lean-forward="false" selection-start-line="91" selection-start-column="90" selection-end-line="91" selection-end-column="90" />
+            <state relative-caret-position="221">
+              <caret line="36" column="86" lean-forward="false" selection-start-line="36" selection-start-column="86" selection-end-line="36" selection-end-column="86" />
               <folding />
             </state>
           </provider>
@@ -86,8 +84,8 @@
       <file leaf-file-name="BlockRedstoneGate.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-238">
-              <caret line="51" column="41" lean-forward="false" selection-start-line="51" selection-start-column="41" selection-end-line="51" selection-end-column="41" />
+            <state relative-caret-position="289">
+              <caret line="49" column="31" lean-forward="false" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="31" />
               <folding>
                 <element signature="docComment;method#createNewTileEntity#0;class#BlockRedstoneGate#0" expanded="false" />
               </folding>
@@ -98,8 +96,8 @@
       <file leaf-file-name="BlockOldRedstoneGate.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="12" selection-end-column="46" />
+            <state relative-caret-position="85">
+              <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -801,11 +799,11 @@
         <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/TileEntityRedstoneGate.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/GuiRedstoneGate.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java" />
         <option value="$PROJECT_DIR$/src/main/resources/assets/redstonegate/lang/en_US.lang" />
-        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/mod_RedstoneGate.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java" />
       </list>
     </option>
   </component>
@@ -1451,14 +1449,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="12" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/ContainerRedstoneGate.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -1475,16 +1465,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-238">
-          <caret line="51" column="41" lean-forward="false" selection-start-line="51" selection-start-column="41" selection-end-line="51" selection-end-column="41" />
-          <folding>
-            <element signature="docComment;method#createNewTileEntity#0;class#BlockRedstoneGate#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/mod_RedstoneGate.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
@@ -1497,10 +1477,28 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockRedstoneGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="49" column="31" lean-forward="false" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="31" />
+          <folding>
+            <element signature="docComment;method#createNewTileEntity#0;class#BlockRedstoneGate#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/BlockOldRedstoneGate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/mefisto94/RedstoneGate/RedstoneGate.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1088">
-          <caret line="91" column="90" lean-forward="false" selection-start-line="91" selection-start-column="90" selection-end-line="91" selection-end-column="90" />
+        <state relative-caret-position="221">
+          <caret line="36" column="86" lean-forward="false" selection-start-line="36" selection-start-column="86" selection-end-line="36" selection-end-column="86" />
           <folding />
         </state>
       </provider>

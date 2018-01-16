@@ -43,10 +43,9 @@ import java.util.Random;
 public class BlockRedstoneGate extends BlockContainer {
     public boolean renderAsItem;
 
-    protected BlockRedstoneGate(int i) {
-        // i = BlockID
+    protected BlockRedstoneGate() {
         // blockIndexInTexture = 6
-        super(i, 6, Material.GLASS);
+        super(Material.GLASS, 6);
         super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
         this.renderAsItem = false;
         setRegistryName("redstonegate", "gate");

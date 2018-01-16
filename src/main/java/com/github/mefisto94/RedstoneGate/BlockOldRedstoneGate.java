@@ -6,8 +6,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockOldRedstoneGate extends BlockRedstoneGate {
-    protected BlockOldRedstoneGate(int i) {
-        super(i);
+    protected BlockOldRedstoneGate() {
+        super();
         setRegistryName("redstonegate", "old-gate");
         setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
         setCreativeTab(CreativeTabs.REDSTONE);
