@@ -1,0 +1,16 @@
+[
+{
+  "modid": "redstonegate",
+  "name": "Redstone Gate",
+  "description": "This mod addresses the size of redstone contraptions by adding a programmable redstone gate block. The behaviour of such a block is specified by means of truth tables.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/MeFisto94/redstonegate",
+  "updateUrl": "",
+  "authorList": ["MeFisto94", "Darquan"],
+  "credits": "The Forge and MCP teams for making Modding painless",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
