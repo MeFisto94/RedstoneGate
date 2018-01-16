@@ -179,7 +179,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         if (this.isPoweredWire(world, newPos)) {
             return true;
         }
-        if (world.markBlockAsNeedsUpdate(newPos, opposite.getIndex)) {
+        if (world.markBlockAsNeedsUpdate(newPos, opposite.getIndex())) {
             return true;
         }
         return false;
@@ -231,9 +231,14 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     @Override
+    public int getFieldCount() {
+        return getSizeInventory(); // Not sure, but I guess that's the Number of available/filled Stacks
+    }
+
+    @Override
     public ItemStack getStackInSlot(int i) {
         if (i != 45) return null;
-        return new ItemStack(mod_RedstoneGate.redstoneGate);
+        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE);
     }
 
     public ItemStack decrStackSize(int i, int j) {
@@ -253,7 +258,8 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
             return null;
         }
         if (i == 44) {
-            int delay = (getBlockMetadata() + (j == 0 ? 1 : 15)) % 16;
+            // j != 0 signalizes to reduce the delay by one, j == 0 increase delay
+            int delay = (getBlockMetadata() + (j == 0 ? 1 : DELAY_DECR)) % MAX_DELAY;
             worldObj.setMetadata(getPos().getX(), getPos().getY(), getPos().getZ(), delay);
             return null;
         }
@@ -284,7 +290,12 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
 
     @Override
     public String getName() {
-        return "Redstone gate";
+        return "Redstone Gate";
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return false;
     }
 
     public int getInventoryStackLimit() {
@@ -294,19 +305,12 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public void onInventoryChanged() {
     }
 
-    public boolean canInteractWith(EntityPlayer entityplayer) {
-        if (worldObj.getBlockTileEntity(getPos().getX(), getPos().getY(), getPos().getZ()) != this) {
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+        if (worldObj.getTileEntity(getPos()) != this) {
             return false;
         }
-        if (entityplayer.getDistanceSq((double)getPos().getX() + 0.5, (double)getPos().getY() + 0.5, (double)getPos().getZ() + 0.5) > 64.0) return false;
-        return true;
-    }
-
-    public boolean a_(EntityPlayer entityplayer) {
-        if (worldObj.getBlockTileEntity(getPos().getX(), getPos().getY(), getPos().getZ()) != this) {
-            return false;
-        }
-        if (entityplayer.getDistanceSq((double) getPos().getX() + 0.5, (double)getPos().getY() + 0.5, (double) getPos().getZ() + 0.5) > 64.0) return false;
+        if (entityplayer.getDistanceSq(getPos().add(0.5f, 0.5f, 0.5f)) > 64.0) return false;
         return true;
     }
 
@@ -317,12 +321,30 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     @Override
-    public void openChest() {
+    public void openInventory(EntityPlayer player) {
     }
 
     @Override
-    public void closeChest() {
+    public void closeInventory(EntityPlayer player) {
     }
 
+    @Override
+    public boolean isItemValidForSlot(int index, ItemStack stack) {
+        return false; // Don't permit items being placed
+    }
 
+    // @TODO: Implement. I guess these are for real inventories, but we want to discard anything?
+
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {
+    }
+
+    @Override
+    public void clear() {
+    }
 }
