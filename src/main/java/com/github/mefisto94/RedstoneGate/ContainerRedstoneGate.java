@@ -2,9 +2,12 @@ package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nullable;
 
 public class ContainerRedstoneGate extends Container {
     private TileEntityRedstoneGate entityGate;
@@ -14,25 +17,29 @@ public class ContainerRedstoneGate extends Container {
     }
 
     public boolean canInteractWith(EntityPlayer entityplayer) {
-        return this.entityGate.canInteractWith(entityplayer);
+        return this.entityGate.isUseableByPlayer(entityplayer);
     }
 
-    public ItemStack slotClick(int i, int j, boolean flag, EntityPlayer entityplayer) {
-        int n;
-        if (i < 0) return null;
-        if (inventorySlots.size() <= i) {
+    @Nullable
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+        if (slotId < 0) {
             return null;
         }
-        Slot slot = (Slot)inventorySlots.get(i);
+
+        if (inventorySlots.size() <= slotId) {
+            return null;
+        }
+
+        Slot slot = inventorySlots.get(slotId);
         if (slot == null) {
             return null;
         }
-        if (flag) {
-            n = 1;
-            return slot.decrStackSize(n);
+        if (clickTypeIn == ClickType.PICKUP) {
+            return slot.decrStackSize(1);
+        } else {
+            return slot.decrStackSize(0);
         }
-        n = 0;
-        return slot.decrStackSize(n);
     }
 
     /**

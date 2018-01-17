@@ -157,7 +157,10 @@ public class BlockRedstoneGate extends BlockContainer {
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         TileEntityRedstoneGate tileentity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-        ModLoader.openGUI(playerIn, (GuiScreen)new GuiRedstoneGate(playerIn, tileentity));
+        //ModLoader.openGUI(playerIn, (GuiScreen)new GuiRedstoneGate(playerIn, tileentity));
+        if (!worldIn.isRemote) {
+            playerIn.openGui(RedstoneGate.instance, GUIHandler.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
+        }
         return true;
     }
 

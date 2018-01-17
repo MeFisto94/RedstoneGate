@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,6 +37,12 @@ public class RedstoneGate
     public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
     public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate();
 
+    public static RedstoneGate instance;
+
+    public RedstoneGate() {
+        instance = this;
+    }
+
     @EventHandler
     public void init(FMLInitializationEvent event) {
     }
@@ -45,9 +52,16 @@ public class RedstoneGate
         config = new Configuration(event.getSuggestedConfigurationFile());
         syncConfig();
 
+        GameRegistry.registerTileEntity(TileEntityRedstoneGate.class, TileEntityRedstoneGate.class.getSimpleName());
         GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
         GameRegistry.register(BLOCK_REDSTONE_GATE);
 
+        // You need to register a GUIHandler for the container.  However there can be only one handler per mod, so for the purposes
+        //   of this project, we create a single GuiHandlerRegistry for all examples.
+        // We register this GuiHandlerRegistry with the NetworkRegistry, and then tell the GuiHandlerRegistry about
+        //   each example's GuiHandler, in this case GuiHandlerMBE30, so that when it gets a request from NetworkRegistry,
+        //   it passes the request on to the correct example's GuiHandler.
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
 
         GameRegistry.register(FAST_TORCH_BLOCK_UNLIT);
         GameRegistry.register(FAST_TORCH_BLOCK_LIT);
