@@ -184,10 +184,32 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         if (this.isPoweredWire(world, newPos)) {
             return true;
         }
-        if (world.markBlockAsNeedsUpdate(newPos, opposite.getIndex())) {
-            return true;
-        }
-        return false;
+
+        /*
+         *  Extract of isBlockIndirectlyProvidingPowerTo:
+
+            if (isBlockNormalCube(par1, par2, par3)) {
+                return isBlockGettingPowered(par1, par2, par3);
+            }
+
+            int i = getBlockId(par1, par2, par3);
+
+            if (i == 0) {
+                return false;
+            } else {
+                return Block.blocksList[i].isPoweringTo(this, par1, par2, par3, par4);
+            }
+
+            Since the purpose seems to be to find whether any block is providing power to par1, par2, par3,
+            world.isBlockIndirectlyGettingPowered() seems the right replacement
+
+            // Is a block next to you getting powered (if its an attachable block) or is it providing power directly to you.  Args: x, y, z, direction
+            if (world.isBlockIndirectlyProvidingPowerTo(newPos, opposite.getIndex())) {
+                return true;
+            }
+         */
+
+        return world.isBlockIndirectlyGettingPowered(newPos) > 0;
     }
 
     public void RecomputeOutput(World world, int i, int j, int k) {
