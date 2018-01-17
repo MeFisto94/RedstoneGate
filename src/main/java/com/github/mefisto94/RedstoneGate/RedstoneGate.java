@@ -63,24 +63,25 @@ public class RedstoneGate
         //   it passes the request on to the correct example's GuiHandler.
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
 
-        GameRegistry.register(FAST_TORCH_BLOCK_UNLIT);
+        /*GameRegistry.register(FAST_TORCH_BLOCK_UNLIT);
         GameRegistry.register(FAST_TORCH_BLOCK_LIT);
         ITEM_BLOCK_REPEATER.setRegistryName(FAST_REPEATER_BLOCK_UNPOWERED.getRegistryName());
         ITEM_BLOCK_UNL_WIRE.setRegistryName(UNL_BLOCK_REDSTONE_WIRE.getRegistryName());
         ITEM_BLOCK_TORCH.setRegistryName(FAST_TORCH_BLOCK_LIT.getRegistryName());
         GameRegistry.register(ITEM_BLOCK_REPEATER);
         GameRegistry.register(ITEM_BLOCK_UNL_WIRE);
-        GameRegistry.register(ITEM_BLOCK_TORCH);
+        GameRegistry.register(ITEM_BLOCK_TORCH);*/
 
     }
 
     @EventHandler
     @SideOnly(Side.CLIENT)
     public void PreInit_ClientOnly(FMLPreInitializationEvent event) {
-        final int DEFAULT_ITEM_SUBTYPE = 0;
+        /*final int DEFAULT_ITEM_SUBTYPE = 0;
         ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_REPEATER, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(FAST_REPEATER_BLOCK_UNPOWERED.getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_UNL_WIRE, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(UNL_BLOCK_REDSTONE_WIRE.getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_TORCH, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(FAST_TORCH_BLOCK_LIT.getRegistryName(), "inventory"));
+        */
     }
 
     @EventHandler

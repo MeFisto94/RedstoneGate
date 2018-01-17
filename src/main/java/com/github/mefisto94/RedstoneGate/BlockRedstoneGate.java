@@ -52,7 +52,7 @@ public class BlockRedstoneGate extends BlockContainer {
     protected BlockRedstoneGate() {
         // blockIndexInTexture = 6
         super(Material.GLASS);
-        super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
+        //super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
         this.renderAsItem = false;
         setRegistryName("redstonegate", "gate");
         setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
@@ -89,7 +89,7 @@ public class BlockRedstoneGate extends BlockContainer {
         return true;
     }
 
-    @Override
+    //@Override
     public int getBlockTextureFromSideAndMetadata(int i, int j) {
         if (i == 0) {
             return 6;
@@ -99,7 +99,7 @@ public class BlockRedstoneGate extends BlockContainer {
         return 131;
     }
 
-    @Override
+    //@Override
     public int getBlockTextureFromSide(int i) {
         return getBlockTextureFromSideAndMetadata(i, 0);
     }

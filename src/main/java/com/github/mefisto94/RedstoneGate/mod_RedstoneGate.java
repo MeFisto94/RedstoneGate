@@ -10,7 +10,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.IBlockAccess;
-
+/*
 public class mod_RedstoneGate extends BaseMod
 {
     public static int renderID;
@@ -104,3 +104,4 @@ public class mod_RedstoneGate extends BaseMod
         mod_RedstoneGate.oldGateBlock = null;
     }
 }
+*/
