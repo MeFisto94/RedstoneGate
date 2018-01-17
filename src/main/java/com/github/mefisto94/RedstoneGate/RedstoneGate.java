@@ -3,6 +3,7 @@ package com.github.mefisto94.RedstoneGate;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -37,6 +38,8 @@ public class RedstoneGate
     public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
     public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate();
 
+    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE);
+
     public static RedstoneGate instance;
 
     public RedstoneGate() {
@@ -63,15 +66,8 @@ public class RedstoneGate
         //   it passes the request on to the correct example's GuiHandler.
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
 
-        /*GameRegistry.register(FAST_TORCH_BLOCK_UNLIT);
-        GameRegistry.register(FAST_TORCH_BLOCK_LIT);
-        ITEM_BLOCK_REPEATER.setRegistryName(FAST_REPEATER_BLOCK_UNPOWERED.getRegistryName());
-        ITEM_BLOCK_UNL_WIRE.setRegistryName(UNL_BLOCK_REDSTONE_WIRE.getRegistryName());
-        ITEM_BLOCK_TORCH.setRegistryName(FAST_TORCH_BLOCK_LIT.getRegistryName());
-        GameRegistry.register(ITEM_BLOCK_REPEATER);
-        GameRegistry.register(ITEM_BLOCK_UNL_WIRE);
-        GameRegistry.register(ITEM_BLOCK_TORCH);*/
-
+        ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE.getRegistryName());
+        GameRegistry.register(ITEM_REDSTONE_GATE);
     }
 
     @EventHandler

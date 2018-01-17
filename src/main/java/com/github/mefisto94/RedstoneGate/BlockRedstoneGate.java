@@ -54,9 +54,12 @@ public class BlockRedstoneGate extends BlockContainer {
         super(Material.GLASS);
         //super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
         this.renderAsItem = false;
-        setRegistryName("redstonegate", "gate");
-        setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
-        setCreativeTab(CreativeTabs.REDSTONE);
+
+        if (!(this instanceof BlockOldRedstoneGate)) { // don't double register names
+            setRegistryName("redstonegate", "gate");
+            setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
+            setCreativeTab(CreativeTabs.REDSTONE);
+        }
     }
 
     // Not supported anymore, just like setBlockBounds

@@ -14,7 +14,7 @@ public class BlockOldRedstoneGate extends BlockRedstoneGate {
         setCreativeTab(CreativeTabs.REDSTONE);
     }
 
-    @Override
+    //@Override
     public boolean shouldSideBeRendered(IBlockAccess iblockaccess, int x, int y, int z, int side) {
         switch (side) {
             case 0: {
