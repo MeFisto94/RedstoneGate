@@ -2,15 +2,20 @@ package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
-
+// @TODO: Match the Numbers to the constants
+@SideOnly(Side.CLIENT)
 public class GuiRedstoneGate extends GuiContainer {
-    public static final String BACKGROUND_IMAGE = "/gui/redstonegate.png";
+    public static final String BACKGROUND_IMAGE = "/textures/gui.png";
     public static final int GUI_WIDTH = 176;
     public static final int GUI_HEIGHT = 170;
     public static final int FIRST_GRID_ID = 0;
@@ -64,7 +69,7 @@ public class GuiRedstoneGate extends GuiContainer {
     private int code_index;
 
     public GuiRedstoneGate(final EntityPlayer entityplayer, final TileEntityRedstoneGate tileentity) {
-        super((Container)new ContainerRedstoneGate(entityplayer.inventory, tileentity));
+        super(new ContainerRedstoneGate(entityplayer.inventory, tileentity));
         this.column_header = "";
         this.sides = new String[] { "Right", "Left", "Back", "Front", "Down", "Up" };
         this.quickConfigLabels = new String[] { "and", "or", "xor", "neg", "on", "off" };
@@ -75,8 +80,8 @@ public class GuiRedstoneGate extends GuiContainer {
         this.entityGate = tileentity;
         GuiRedstoneGate.selectedIO = 63;
         GuiRedstoneGate.negatedIO = 0;
-        this.xSize = 176;
-        this.ySize = 170;
+        this.xSize = GUI_WIDTH;
+        this.ySize = GUI_HEIGHT;
         this.container = (ContainerRedstoneGate)inventorySlots;
         GuiRedstoneGate.status_timer = 0;
         GuiRedstoneGate.statusbar = "";
@@ -180,11 +185,11 @@ public class GuiRedstoneGate extends GuiContainer {
 
     private void drawGridHeaders() {
         for (int j = 0; j < this.outputcount; ++j) {
-            fontRendererObj.drawString(this.outputs[j], 94, 4 * (26 + j * 18 * this.rows_per_output) / 3, 4210752);
+            fontRendererObj.drawString(this.outputs[j], 94, 4 * (26 + j * 18 * this.rows_per_output) / 3, CL_GREY);
         }
         final int offset = (18 - this.computeCellContentWidth(this.column_header)) / 2;
         for (int i = 0; i < 4; ++i) {
-            this.drawCellString(this.column_header, 99 + offset + 18 * i, 9, 4210752);
+            this.drawCellString(this.column_header, 99 + offset + 18 * i, 9, CL_GREY);
         }
     }
 
@@ -207,38 +212,38 @@ public class GuiRedstoneGate extends GuiContainer {
 
     public void addConfigSlots() {
         for (int i = 0; i < 6; ++i) {
-            container.addSlot(new Slot((IInventory)this.entityGate, 38 + i, 8 + 18 * (i % 3), 110 + 18 * (i / 3)));
+            container.addSlot(new Slot(this.entityGate, FIRST_CONFIG_ID + i, X_CONFIG_LEFT + CELL_WIDTH * (i % 3), Y_CONFIG_TOP + CELL_HEIGHT * (i / 3)));
             final String s = this.quickConfigLabels[i];
             final int xOffset = 18 * (i % 3) + (18 - fontRendererObj.getStringWidth(s)) / 2 + 2;
             final int yOffset = 18 * (i / 3) + 4 + 2;
-            fontRendererObj.drawString(s, 4 * (8 + xOffset) / 3, 4 * (110 + yOffset) / 3, 4210752);
+            fontRendererObj.drawString(s, 4 * (X_CONFIG_LEFT + xOffset) / 3, 4 * (Y_CONFIG_TOP + yOffset) / 3, CL_GREY);
         }
-        container.addSlot(new Slot((IInventory)this.entityGate, 46, 8, 146));
-        container.addSlot(new Slot((IInventory)this.entityGate, 47, 26, 146));
+        container.addSlot(new Slot(this.entityGate, 46, 8, 146));
+        container.addSlot(new Slot(this.entityGate, 47, 26, 146));
         int xOffset = (18 - this.computeCellContentWidth("Cpy")) / 2 + 2;
         final int yOffset = 42;
-        this.drawCellString("Cpy", 8 + xOffset, 110 + yOffset, 4210752);
+        this.drawCellString("Cpy", X_CONFIG_LEFT + xOffset, Y_CONFIG_TOP + yOffset, CL_GREY);
         xOffset = (18 - this.computeCellContentWidth("Pst")) / 2 + 2;
-        this.drawCellString("Pst", 26 + xOffset, 110 + yOffset, 4210752);
+        this.drawCellString("Pst", 26 + xOffset, Y_CONFIG_TOP + yOffset, CL_GREY);
     }
 
     public void addDelaySlot() {
         final String d = Integer.toString(this.entityGate.delay);
         final int offset = (18 - fontRendererObj.getStringWidth(d)) / 2;
-        fontRendererObj.drawString("Delay:", 4 * (99 - this.computeCellContentWidth("Delay") - 36) / 3, 202, 4210752);
-        container.addSlot(new Slot((IInventory)this.entityGate, 44, 71, 146));
-        fontRendererObj.drawString(d, 4 * (71 + offset) / 3, 202, 4210752);
+        fontRendererObj.drawString("Delay:", 4 * (99 - this.computeCellContentWidth("Delay") - 36) / 3, 202, CL_GREY);
+        container.addSlot(new Slot(this.entityGate, 44, X_DELAY, Y_DELAY));
+        fontRendererObj.drawString(d, 4 * (X_DELAY + offset) / 3, 202, CL_GREY);
     }
 
     public void addInputSlots() {
         for (int i = 0; i < 6; ++i) {
-            container.addSlot(new Slot((IInventory)this.entityGate, 32 + i, 8 + GuiRedstoneGate.input_locations[i][0] * 18, 38 + GuiRedstoneGate.input_locations[i][1] * 18));
+            container.addSlot(new Slot(this.entityGate, 32 + i, 8 + GuiRedstoneGate.input_locations[i][0] * CELL_WIDTH, Y_INPUT_TOP + GuiRedstoneGate.input_locations[i][1] * CELL_HEIGHT));
         }
-        container.addSlot(new Slot((IInventory)this.entityGate, 45, 26, 56));
+        container.addSlot(new Slot(this.entityGate, 45, 26, 56));
     }
 
     public void addGridSlot(final int col, final int row, final int index) {
-        container.addSlot(new Slot((IInventory)this.entityGate, index, 98 + 18 * col, 20 + 18 * row));
+        container.addSlot(new Slot(this.entityGate, index, X_GRID_LEFT + CELL_WIDTH * col, Y_GRID_TOP + CELL_HEIGHT * row));
     }
 
     private void drawGridCells() {
@@ -269,10 +274,9 @@ public class GuiRedstoneGate extends GuiContainer {
 
     private void drawInputString(final int input, final int x, final int y, final boolean isOutput, final boolean isInput) {
         GL11.glPopMatrix();
-        // @TODO: Maybe .loadTexture first?
-        final int i = mc.renderEngine.getTexture("/gui/redstonegate.png").getGlTextureId();
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.renderEngine.bindTexture(i);
+        mc.renderEngine.bindTexture(new ResourceLocation("redstonegate", BACKGROUND_IMAGE));
+
         if (isOutput || isInput) {
             final int bit = 1 << input;
             if ((GuiRedstoneGate.selectedIO & bit) != 0x0) {
@@ -290,7 +294,7 @@ public class GuiRedstoneGate extends GuiContainer {
         final int scaledX = 20 * x / 13;
         final int scaledY = 20 * y / 13;
         final boolean toprow = GuiRedstoneGate.input_locations[input][1] == 0;
-        final int color = isOutput ? (isInput ? RedstoneGate.conf_colorIO : RedstoneGate.conf_colorOff) : (isInput ? RedstoneGate.conf_colorOn : 4210752);
+        final int color = isOutput ? (isInput ? RedstoneGate.conf_colorIO : RedstoneGate.conf_colorOff) : (isInput ? RedstoneGate.conf_colorOn : CL_GREY);
         fontRendererObj.drawString(this.sides[input], scaledX, scaledY + (toprow ? -9 : 28), color);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
@@ -306,7 +310,7 @@ public class GuiRedstoneGate extends GuiContainer {
         for (int i = 0; i < 6; ++i) {
             final boolean isOutput = (outputMask & 1 << i) != 0x0;
             final boolean isInput = (inputMask & 1 << i) != 0x0;
-            this.drawInputString(i, 8 + GuiRedstoneGate.input_locations[i][0] * 18, 38 + GuiRedstoneGate.input_locations[i][1] * 18, isOutput, isInput);
+            this.drawInputString(i, 8 + GuiRedstoneGate.input_locations[i][0] * 18, Y_INPUT_TOP + GuiRedstoneGate.input_locations[i][1] * 18, isOutput, isInput);
             if (isOutput) {
                 this.outputs[this.outputcount] = this.sides[i];
                 ++this.outputcount;
@@ -322,32 +326,33 @@ public class GuiRedstoneGate extends GuiContainer {
         GL11.glPopMatrix();
     }
 
-    protected void d() {
-        fontRendererObj.drawString("Redstone gate", 8, 8, 4210752);
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        fontRendererObj.drawString("Redstone gate", 8, 8, CL_GREY);
         GL11.glPushMatrix();
         GL11.glScalef(0.75f, 0.75f, 1.0f);
         fontRendererObj.drawString("Inputs/Outputs", 10, 34, RedstoneGate.conf_colorOff);
         fontRendererObj.drawString("Inputs", 10, 34, RedstoneGate.conf_colorOn);
-        fontRendererObj.drawString("Auto config", 10, 134, 4210752);
+        fontRendererObj.drawString("Auto config", 10, 134, CL_GREY);
         GL11.glPopMatrix();
         GL11.glPushMatrix();
         GL11.glScalef(0.5f, 0.5f, 1.0f);
-        fontRendererObj.drawString("(0=off, 1=on)", 268, 326, 4210752);
+        fontRendererObj.drawString("(0=off, 1=on)", 268, 326, CL_GREY);
         if (this.code_entry) {
             setStatusMessage(this.code_display);
         }
         if (0 < GuiRedstoneGate.status_timer) {
             --GuiRedstoneGate.status_timer;
-            fontRendererObj.drawString(GuiRedstoneGate.statusbar, 16, 326, 4210752);
+            fontRendererObj.drawString(GuiRedstoneGate.statusbar, 16, 326, CL_GREY);
         }
         GL11.glPopMatrix();
         this.drawTruthTable(this.entityGate.inputMask, this.entityGate.outputMask);
     }
 
-    protected void a(final float f, final int i, final int j) {
-        final int t = mc.renderEngine.getTexture("/gui/redstonegate.png");
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        mc.renderEngine.bindTexture(t);
+        mc.renderEngine.bindTexture(new ResourceLocation("redstonegate", BACKGROUND_IMAGE));
         final int x = (width - xSize) / 2;
         final int y = (height - ySize) / 2;
         drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
