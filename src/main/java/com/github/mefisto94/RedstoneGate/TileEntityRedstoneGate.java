@@ -212,14 +212,14 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         return world.isBlockIndirectlyGettingPowered(newPos) > 0;
     }
 
-    public void RecomputeOutput(World world, int i, int j, int k) {
+    public void RecomputeOutput(World world, BlockPos pos) {
         int index = 0;
         int bitcount = 1;
         int[] dirmap = relative_to_absolute_direction[(this.inputMask & 255) >> 6];
         for (int d = 5; 0 <= d; --d) {
             if ((this.inputMask & 1 << d) == 0) continue;
             bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (this.isSidePowered(world, new BlockPos(i, j, k), EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
+            index = index << 1 | (this.isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
         }
         this.outputVector = 0;
         long table = this.truthTable & -1;

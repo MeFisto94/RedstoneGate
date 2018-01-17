@@ -80,22 +80,24 @@ public class BlockRedstoneGate extends BlockContainer {
         return getBlockTextureFromSideAndMetadata(i, 0);
     }
 
+    @Override
+    public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+        super.updateTick(worldIn, pos, state, rand);
 
-    public void getStrVsBlock(World world, int x, int y, int z, Random random) {
-        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)world.getTileEntity(new BlockPos(x, y, z));
+        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+
         byte old_vector = tile_entity.outputVector;
-        tile_entity.RecomputeOutput(world, x, y, z);
+        tile_entity.RecomputeOutput(worldIn, pos);
         if (tile_entity.outputVector == old_vector) {
             tile_entity.canUpdate = true;
             return;
         }
 
-        BlockPos pos = new BlockPos(x, y, z);
-        world.notifyNeighborsOfStateChange(pos, this);
-        world.notifyBlockOfStateChange(pos, this);
+        worldIn.notifyNeighborsOfStateChange(pos, this);
+        worldIn.notifyBlockOfStateChange(pos, this);
 
         int delay = tile_entity.delay;
-        world.scheduleBlockUpdate(pos, this, delay == 0 ? 2 : delay * 2, -1);
+        worldIn.scheduleBlockUpdate(pos, this, delay == 0 ? 2 : delay * 2, -1);
     }
 
     public boolean isIndirectlyPoweringTo(World world, int x, int y, int z, int side) {
