@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "facing=south": { "model": "redstonegate:gate" },
+    "facing=west": { "model": "redstonegate:gate", "y": 90 },
+    "facing=north": { "model": "redstonegate:gate", "y": 180 },
+    "facing=east": { "model": "redstonegate:gate", "y": 270 },
+    "normal": { "model": "redstonegate:gate" }
+  }
+}
