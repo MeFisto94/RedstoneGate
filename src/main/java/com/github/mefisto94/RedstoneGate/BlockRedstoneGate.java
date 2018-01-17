@@ -1,31 +1,4 @@
 package com.github.mefisto94.RedstoneGate;
-/*
- * Decompiled with CFR 0_115.
- * 
- * Could not load the following classes:
- *  BlockRedstoneGate
- *  GuiRedstoneGate
- *  ModLoader
- *  TileEntityRedstoneGate
- *  aci = Material
- *  acl = net/minecraft/src/EntityLiving
- *  ags = net/minecraft/src/BlockContainer
- *  alc = net/minecraft/src/IBlockAccess
- *  gh  = net/minecraft/src/MathHelper
- *  kt  = net/minecraft/src/TileEntity
- *  mod_RedstoneGate
- *  vl  = net/minecraft/src/GuiScreen
- *  wz  = net/minecraft/src/World
- *  yr  = net/minecraft/src/EntityPlayer
- * 
- * Relevant  Methods:
- * net/minecraft/src/BlockContainer.<init>(IILnet/minecraft/src/Material;)V=|p_i116_1_,p_i116_2_,p_i116_3_
- * net/minecraft/src/BlockContainer.<init>(ILnet/minecraft/src/Material;)V=|p_i115_1_,p_i115_2_
- * net/minecraft/src/BlockContainer.func_21024_a(Lnet/minecraft/src/World;IIIII)V=|p_21024_1_,p_21024_2_,p_21024_3_,p_21024_4_,p_21024_5_,p_21024_6_
- * net/minecraft/src/BlockContainer.func_214_b(Lnet/minecraft/src/World;III)V=|p_214_1_,p_214_2_,p_214_3_,p_214_4_ // onBlockRemoval, Called whenever the Block is removed
- * net/minecraft/src/BlockContainer.func_235_e(Lnet/minecraft/src/World;III)V=|p_235_1_,p_235_2_,p_235_3_,p_235_4_
- *
- */
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
