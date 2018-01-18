@@ -88,7 +88,7 @@ public class GuiRedstoneGate extends GuiContainer {
         this.code_entry = false;
         this.code_index = 0;
         this.gate_code = "";
-        this.code_display = String.format("", "____-________-_");
+        this.code_display = String.format("", CODE_TEMPLATE);
     }
 
     public static void setStatusMessage(final String s) {
@@ -96,47 +96,40 @@ public class GuiRedstoneGate extends GuiContainer {
         GuiRedstoneGate.status_timer = 256;
     }
 
-
-    protected void updateNeighbours(final int x, final int y, final int z, final Block blockType) {
-        BlockPos pos = new BlockPos(x, y, z);
-        mc.theWorld.notifyNeighborsOfStateChange(pos, blockType);
-        mc.theWorld.notifyBlockOfStateChange(pos, blockType);
-    }
-
     private void codeKeyTyped(final char c, final int i) {
         if (i == 1) {
-            this.code_entry = false;
+            code_entry = false;
             setStatusMessage("");
         }
         else if (i == mc.gameSettings.keyBindInventory.getKeyCode()) {
-            this.code_entry = false;
+            code_entry = false;
             codeKeyTyped(c, i);
         }
-        else if (i == 14 && 0 < this.code_index) {
-            --this.code_index;
-            if (this.gate_code.charAt(this.code_index) == '-') {
-                --this.code_index;
+        else if (i == 14 && 0 < code_index) {
+            --code_index;
+            if (gate_code.charAt(code_index) == '-') {
+                --code_index;
             }
-            this.gate_code = this.gate_code.substring(0, this.code_index);
-            this.code_display = String.format("Enter code: %s%s", this.gate_code, "____-________-_".substring(this.code_index, GuiRedstoneGate.CODE_LENGTH));
+            gate_code = gate_code.substring(0, code_index);
+            code_display = String.format(CODE_DISPLAY, gate_code, CODE_TEMPLATE.substring(code_index, GuiRedstoneGate.CODE_LENGTH));
         }
-        else if (i == 28 && this.code_index == GuiRedstoneGate.CODE_LENGTH) {
-            this.code_entry = false;
-            if (this.entityGate.setConfigString(this.gate_code)) {
+        else if (i == 28 && code_index == GuiRedstoneGate.CODE_LENGTH) {
+            code_entry = false;
+            if (entityGate.setConfigString(gate_code)) {
                 setStatusMessage("Code accepted");
             }
             else {
                 setStatusMessage("Invalid code");
             }
         }
-        else if (this.code_index < GuiRedstoneGate.CODE_LENGTH && 0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
-            this.gate_code += c;
-            ++this.code_index;
-            if (this.code_index < GuiRedstoneGate.CODE_LENGTH && "____-________-_".charAt(this.code_index) == '-') {
-                this.gate_code += '-';
-                ++this.code_index;
+        else if (code_index < GuiRedstoneGate.CODE_LENGTH && 0 <= allowedCodeChars.indexOf(c)) {
+            gate_code += c;
+            ++code_index;
+            if (code_index < GuiRedstoneGate.CODE_LENGTH && CODE_TEMPLATE.charAt(code_index) == '-') {
+                gate_code += '-';
+                ++code_index;
             }
-            this.code_display = String.format("Enter code: %s%s", this.gate_code, (this.code_index < GuiRedstoneGate.CODE_LENGTH) ? "____-________-_".substring(this.code_index, GuiRedstoneGate.CODE_LENGTH) : "");
+            this.code_display = String.format("Enter code: %s%s", gate_code, (code_index < GuiRedstoneGate.CODE_LENGTH) ? CODE_TEMPLATE.substring(code_index, GuiRedstoneGate.CODE_LENGTH) : "");
         }
     }
 
@@ -147,7 +140,8 @@ public class GuiRedstoneGate extends GuiContainer {
         }
         else if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             mc.thePlayer.closeScreen();
-            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), RedstoneGate.BLOCK_REDSTONE_GATE_POWERED);
+            mc.theWorld.notifyNeighborsOfStateChange(entityGate.getPos(), entityGate.getBlockType());
+            mc.theWorld.notifyBlockOfStateChange(entityGate.getPos(), entityGate.getBlockType());
         }
         else if (0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
             this.code_entry = true;
@@ -238,13 +232,13 @@ public class GuiRedstoneGate extends GuiContainer {
 
     public void addInputSlots() {
         for (int i = 0; i < 6; ++i) {
-            container.addSlot(new Slot(this.entityGate, 32 + i, 8 + GuiRedstoneGate.input_locations[i][0] * CELL_WIDTH, Y_INPUT_TOP + GuiRedstoneGate.input_locations[i][1] * CELL_HEIGHT));
+            container.addSlot(new Slot(entityGate, 32 + i, 8 + GuiRedstoneGate.input_locations[i][0] * CELL_WIDTH, Y_INPUT_TOP + GuiRedstoneGate.input_locations[i][1] * CELL_HEIGHT));
         }
-        container.addSlot(new Slot(this.entityGate, 45, 26, 56));
+        container.addSlot(new Slot(entityGate, 45, 26, 56));
     }
 
     public void addGridSlot(final int col, final int row, final int index) {
-        container.addSlot(new Slot(this.entityGate, index, X_GRID_LEFT + CELL_WIDTH * col, Y_GRID_TOP + CELL_HEIGHT * row));
+        container.addSlot(new Slot(entityGate, index, X_GRID_LEFT + CELL_WIDTH * col, Y_GRID_TOP + CELL_HEIGHT * row));
     }
 
     private void drawGridCells() {
@@ -347,7 +341,7 @@ public class GuiRedstoneGate extends GuiContainer {
             fontRendererObj.drawString(GuiRedstoneGate.statusbar, 16, 326, CL_GREY);
         }
         GL11.glPopMatrix();
-        this.drawTruthTable(this.entityGate.inputMask, this.entityGate.outputMask);
+        drawTruthTable(entityGate.inputMask, entityGate.outputMask);
     }
 
     @Override

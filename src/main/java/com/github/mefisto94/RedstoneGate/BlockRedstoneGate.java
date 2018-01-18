@@ -39,6 +39,7 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
         }
 
         this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.isBlockContainer = true;
     }
 
     @Override
@@ -237,6 +238,30 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new TileEntityRedstoneGate();
+    }
+
+    // Taken from BlockContainer
+
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    {
+        super.breakBlock(worldIn, pos, state);
+        worldIn.removeTileEntity(pos);
+    }
+
+    /**
+     * Called on both Client and Server when World#addBlockEvent is called. On the Server, this may perform additional
+     * changes to the world, like pistons replacing the block with an extended base. On the client, the update may
+     * involve replacing tile entities, playing sounds, or performing other visual actions to reflect the server side
+     * changes.
+     */
+    public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
+    {
+        super.eventReceived(state, worldIn, pos, id, param);
+        TileEntity tileentity = worldIn.getTileEntity(pos);
+        return tileentity == null ? false : tileentity.receiveClientEvent(id, param);
     }
 }
  

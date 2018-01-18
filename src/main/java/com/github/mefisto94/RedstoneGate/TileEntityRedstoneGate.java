@@ -9,10 +9,14 @@ import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public static final int MAX_DELAY = 16;
@@ -215,11 +219,11 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public void RecomputeOutput(World world, BlockPos pos) {
         int index = 0;
         int bitcount = 1;
-        int[] dirmap = relative_to_absolute_direction[(this.inputMask & 255) >> 6];
+        int[] dirmap = relative_to_absolute_direction[(inputMask & 255) >> 6];
         for (int d = 5; 0 <= d; --d) {
-            if ((this.inputMask & 1 << d) == 0) continue;
+            if ((inputMask & 1 << d) == 0) continue;
             bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (this.isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | this.outputVector >> dirmap[d] & 1;
+            index = index << 1 | (this.isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | outputVector >> dirmap[d] & 1;
         }
         this.outputVector = 0;
         long table = this.truthTable & -1;
@@ -252,6 +256,30 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
             return;
         }
         this.outputMask = (byte)(~ this.inputMask & 63);
+    }
+
+    // The following three methods seem required to update TileEntities over the network
+    @Override
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket() {
+        return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
+    }
+
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        super.onDataPacket(net, pkt);
+        handleUpdateTag(pkt.getNbtCompound());
+    }
+
+    // Called when the server receives something
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        super.handleUpdateTag(tag);
     }
 
     @Override
@@ -288,7 +316,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (i == 44) {
             // j != 0 signalizes to reduce the delay by one, j == 0 increase delay
-            delay = (byte)((getBlockMetadata() + (j == 0 ? 1 : DELAY_DECR)) % MAX_DELAY);
+            delay = (byte)((delay + (j == 0 ? 1 : DELAY_DECR)) % MAX_DELAY);
             return null;
         }
         if (38 <= i) {
@@ -297,10 +325,12 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (32 > i) {
             this.truthTable ^= 1 << i;
+            sendUpdates();
             return null;
         }
+        // Input/Output Matrix.
         byte bit = (byte)(1 << i - 32);
-        if (j == 1) {
+        if (j == 1) { // Rightclick or normal klick? 0 -> Middle Mouse Button
             byte temp = (byte)(GuiRedstoneGate.negatedIO ^ GuiRedstoneGate.selectedIO & bit);
             GuiRedstoneGate.selectedIO = (byte)(GuiRedstoneGate.selectedIO ^ (GuiRedstoneGate.negatedIO | ~ GuiRedstoneGate.selectedIO) & bit);
             GuiRedstoneGate.negatedIO = temp;
@@ -309,11 +339,20 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         do {
             this.inputMask = (byte)(this.inputMask ^ this.outputMask & bit);
             this.outputMask = (byte)(this.outputMask ^ bit);
-        } while (this.isInvalidConfig((int)this.inputMask, (int)this.outputMask));
+        } while (isInvalidConfig((int)this.inputMask, (int)this.outputMask));
         return null;
     }
 
     public void setInventorySlotContents(int i, ItemStack itemstack) {
+    }
+
+
+    private void sendUpdates() {
+        //worldObj.markBlockRangeForRenderUpdate(pos, pos);
+        worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3); // take defaultBlockState?
+        worldObj.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
+        //worldObj.markBlockRangeForRenderUpdate();
+        markDirty();
     }
 
     @Override

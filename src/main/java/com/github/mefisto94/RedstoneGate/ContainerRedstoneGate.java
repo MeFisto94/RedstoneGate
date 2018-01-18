@@ -17,7 +17,7 @@ public class ContainerRedstoneGate extends Container {
     }
 
     public boolean canInteractWith(EntityPlayer entityplayer) {
-        return this.entityGate.isUseableByPlayer(entityplayer);
+        return entityGate.isUseableByPlayer(entityplayer);
     }
 
     @Nullable
