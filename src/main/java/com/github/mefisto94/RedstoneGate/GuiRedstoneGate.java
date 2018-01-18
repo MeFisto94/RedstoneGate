@@ -110,7 +110,7 @@ public class GuiRedstoneGate extends GuiContainer {
         }
         else if (i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             this.code_entry = false;
-            this.a(c, i);
+            codeKeyTyped(c, i);
         }
         else if (i == 14 && 0 < this.code_index) {
             --this.code_index;
@@ -140,13 +140,14 @@ public class GuiRedstoneGate extends GuiContainer {
         }
     }
 
-    protected void a(final char c, final int i) {
+    @Override
+    protected void keyTyped(final char c, final int i) {
         if (this.code_entry) {
             this.codeKeyTyped(c, i);
         }
         else if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             mc.thePlayer.closeScreen();
-            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), RedstoneGate.BLOCK_REDSTONE_GATE);
+            this.updateNeighbours(this.entityGate.getPos().getX(), this.entityGate.getPos().getY(), this.entityGate.getPos().getZ(), RedstoneGate.BLOCK_REDSTONE_GATE_POWERED);
         }
         else if (0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
             this.code_entry = true;

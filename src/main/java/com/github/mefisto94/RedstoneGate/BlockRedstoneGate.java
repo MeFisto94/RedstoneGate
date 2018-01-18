@@ -1,121 +1,91 @@
 package com.github.mefisto94.RedstoneGate;
 
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockRedstoneDiode;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.*;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class BlockRedstoneGate extends BlockContainer {
-    public boolean renderAsItem;
+public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntityProvider {
+    protected static final AxisAlignedBB REDSTONE_GATE_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
 
-    protected BlockRedstoneGate() {
-        // blockIndexInTexture = 6
-        super(Material.GLASS);
-        //super.setBlockBounds(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f); // minXYZ maxXYZ
-        this.renderAsItem = false;
+    protected BlockRedstoneGate(boolean powered) {
+        super(powered);
 
         if (!(this instanceof BlockOldRedstoneGate)) { // don't double register names
-            setRegistryName("redstonegate", "gate");
+            setRegistryName("redstonegate", "gate" + (powered ? "-powered" : "-unpowered"));
             setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
             setCreativeTab(CreativeTabs.REDSTONE);
         }
-    }
 
-    // Not supported anymore, just like setBlockBounds
-    //@Override
-    public boolean renderAsNormalBlock() {
-        return !renderAsItem;
-    }
-
-    // Same here, used for custom rendering.
-    //@Override
-    public boolean isOpaqueCube() {
-        return false;
-    }
-
-    @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
-        if (renderAsItem) {
-            return EnumBlockRenderType.INVISIBLE;
-        } else {
-            return EnumBlockRenderType.MODEL;
-        }
-    }
-
-    @Override
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        if (this.renderAsItem) {
-            return true;
-        }
-        if (side.getIndex() == 1) return false;
-        return true;
-    }
-
-    //@Override
-    public int getBlockTextureFromSideAndMetadata(int i, int j) {
-        if (i == 0) {
-            return 6;
-        }
-        if (i != 1) return 5;
-        if (!this.renderAsItem) return 147;
-        return 131;
-    }
-
-    //@Override
-    public int getBlockTextureFromSide(int i) {
-        return getBlockTextureFromSideAndMetadata(i, 0);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
     }
 
     @Override
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-        super.updateTick(worldIn, pos, state, rand);
-
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-
         byte old_vector = tile_entity.outputVector;
         tile_entity.RecomputeOutput(worldIn, pos);
+
+        boolean shouldBePowered = tile_entity.outputVector != 0;//this.shouldBePowered(worldIn, pos, state);
+        if (this.isRepeaterPowered && !shouldBePowered) {
+            worldIn.setBlockState(pos, getUnpoweredState(state), 2);
+        } else if (!this.isRepeaterPowered) {
+            worldIn.setBlockState(pos, getPoweredState(state), 2);
+        }
+
         if (tile_entity.outputVector == old_vector) {
             tile_entity.canUpdate = true;
+
+            if (!isRepeaterPowered && !shouldBePowered) {
+                worldIn.updateBlockTick(pos, getPoweredState(state).getBlock(), getTickDelay(state), -1);
+            }
+
             return;
+        }
+
+        if (!isRepeaterPowered && !shouldBePowered) {
+            worldIn.updateBlockTick(pos, getPoweredState(state).getBlock(), getTickDelay(state), -1);
         }
 
         worldIn.notifyNeighborsOfStateChange(pos, this);
         worldIn.notifyBlockOfStateChange(pos, this);
-
-        int delay = tile_entity.delay;
-        worldIn.scheduleBlockUpdate(pos, this, delay == 0 ? 2 : delay * 2, -1);
+        worldIn.scheduleBlockUpdate(pos, this, tile_entity.delay == 0 ? 2 : tile_entity.delay * 2, -1);
     }
 
-    public boolean isIndirectlyPoweringTo(World world, int x, int y, int z, int side) {
-        return shouldSideBeRendered(this.getDefaultState(), (IBlockAccess)world, new BlockPos(x, y, z), EnumFacing.VALUES[side]);
-    }
-
-    public boolean isPoweringTo(IBlockAccess iblockaccess, BlockPos pos, int side) {
-        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)iblockaccess.getTileEntity(pos);
-        if ((tile_entity.outputVector & 1 << side) == 0) return false;
-        return true;
+    // Used to be "isPoweringTo"
+    @Override
+    protected int getPowerOnSide(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+        if ((tile_entity.outputVector & 1 << side.getIndex()) == 0) return 0;
+        return 15;
     }
 
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)world.getTileEntity(pos);
 
-        // According to 1.2.3's JavaDoc canBlockStay is similar (expect that it's checked for plants?)
-        if (!canPlaceBlockAt((World)world, pos)) {
+        if (!canBlockStay((World)world, pos)) {
             dropBlockAsItem((World) world, pos, this.getDefaultState(), 0);
             ((World) world).setBlockState(pos, getDefaultState());
             ((World) world).notifyBlockOfStateChange(pos, this);
@@ -135,16 +105,9 @@ public class BlockRedstoneGate extends BlockContainer {
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         TileEntityRedstoneGate tileentity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-        //ModLoader.openGUI(playerIn, (GuiScreen)new GuiRedstoneGate(playerIn, tileentity));
         if (!worldIn.isRemote) {
             playerIn.openGui(RedstoneGate.instance, GUIHandler.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
         }
-        return true;
-    }
-
-    @Override
-    /* @TODO: Investigate Deprecation cause. Probably it's state#canProvidePower? */
-    public boolean canProvidePower(IBlockState state) {
         return true;
     }
 
@@ -171,6 +134,102 @@ public class BlockRedstoneGate extends BlockContainer {
         worldIn.notifyNeighborsOfStateChange(pos, this);
     }
 
+    // Satisfy BlockRedstoneDiode
+    @Override
+    protected int getDelay(IBlockState state) {
+        return 1;
+    }
+
+    @Override
+    protected IBlockState getPoweredState(IBlockState unpoweredState) {
+        EnumFacing enumfacing = (EnumFacing)unpoweredState.getValue(FACING);
+        return RedstoneGate.BLOCK_REDSTONE_GATE_POWERED.getDefaultState().withProperty(FACING, enumfacing);
+    }
+
+    @Override
+    protected IBlockState getUnpoweredState(IBlockState poweredState) {
+        EnumFacing enumfacing = (EnumFacing)poweredState.getValue(FACING);
+        return RedstoneGate.BLOCK_REDSTONE_GATE_UNPOWERED.getDefaultState().withProperty(FACING, enumfacing);
+    }
+
+    // Copied from BlockRedstoneRepeater. There they did not appear as Deprecated to the IDE
+    /**
+     * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
+     * blockstate.
+     */
+    @Override
+    public IBlockState withRotation(IBlockState state, Rotation rot)
+    {
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
+    }
+
+    /**
+     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
+     * blockstate.
+     */
+    @Override
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    {
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
+    }
+
+    @Nullable
+    @Override
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+        return RedstoneGate.ITEM_REDSTONE_GATE;
+    }
+
+    @Override
+    public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
+        return new ItemStack(RedstoneGate.ITEM_REDSTONE_GATE);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    {
+        if (this.isRepeaterPowered)
+        {
+            EnumFacing enumfacing = (EnumFacing)stateIn.getValue(FACING);
+            double d0 = (double)((float)pos.getX() + 0.5F) + (double)(rand.nextFloat() - 0.5F) * 0.2D;
+            double d1 = (double)((float)pos.getY() + 0.4F) + (double)(rand.nextFloat() - 0.5F) * 0.2D;
+            double d2 = (double)((float)pos.getZ() + 0.5F) + (double)(rand.nextFloat() - 0.5F) * 0.2D;
+            float f = -5.0F;
+
+            if (rand.nextBoolean())
+            {
+                f = (float)(2 - 1);
+            }
+
+            f = f / 16.0F;
+            double d3 = (double)(f * (float)enumfacing.getFrontOffsetX());
+            double d4 = (double)(f * (float)enumfacing.getFrontOffsetZ());
+            worldIn.spawnParticle(EnumParticleTypes.REDSTONE, d0 + d3, d1, d2 + d4, 0.0D, 0.0D, 0.0D, new int[0]);
+        }
+    }
+
+
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
+    public IBlockState getStateFromMeta(int meta)
+    {
+        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta));
+    }
+
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
+    public int getMetaFromState(IBlockState state)
+    {
+        int i = 0;
+        i = i | ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
+        return i;
+    }
+
+    protected BlockStateContainer createBlockState()
+    {
+        return new BlockStateContainer(this, new IProperty[] {FACING});
+    }
 
     /**
      * Returns a new instance of a block's tile entity class. Called on placing the block.

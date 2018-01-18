@@ -267,7 +267,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     @Override
     public ItemStack getStackInSlot(int i) {
         if (i != 45) return null;
-        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE);
+        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE_POWERED);
     }
 
     public ItemStack decrStackSize(int i, int j) {
@@ -330,8 +330,6 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         return 1;
     }
 
-    public void onInventoryChanged() {
-    }
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer entityplayer) {

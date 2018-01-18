@@ -36,9 +36,10 @@ public class RedstoneGate
 
     // Blocks
     public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
-    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate();
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_UNPOWERED = new BlockRedstoneGate(false);
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_POWERED = new BlockRedstoneGate(true);
 
-    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE);
+    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE_POWERED);
 
     public static RedstoneGate instance;
 
@@ -57,16 +58,12 @@ public class RedstoneGate
 
         GameRegistry.registerTileEntity(TileEntityRedstoneGate.class, TileEntityRedstoneGate.class.getSimpleName());
         GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
-        GameRegistry.register(BLOCK_REDSTONE_GATE);
+        GameRegistry.register(BLOCK_REDSTONE_GATE_POWERED);
+        GameRegistry.register(BLOCK_REDSTONE_GATE_UNPOWERED);
 
-        // You need to register a GUIHandler for the container.  However there can be only one handler per mod, so for the purposes
-        //   of this project, we create a single GuiHandlerRegistry for all examples.
-        // We register this GuiHandlerRegistry with the NetworkRegistry, and then tell the GuiHandlerRegistry about
-        //   each example's GuiHandler, in this case GuiHandlerMBE30, so that when it gets a request from NetworkRegistry,
-        //   it passes the request on to the correct example's GuiHandler.
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
 
-        ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE.getRegistryName());
+        ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE_UNPOWERED.getRegistryName());
         GameRegistry.register(ITEM_REDSTONE_GATE);
     }
 

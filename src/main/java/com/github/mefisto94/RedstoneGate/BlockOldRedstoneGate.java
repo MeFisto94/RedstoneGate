@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 
 public class BlockOldRedstoneGate extends BlockRedstoneGate {
     protected BlockOldRedstoneGate() {
-        super();
+        super(false);
         setRegistryName("redstonegate", "old-gate");
         setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
         setCreativeTab(CreativeTabs.REDSTONE);
@@ -62,12 +62,12 @@ public class BlockOldRedstoneGate extends BlockRedstoneGate {
         byte im = old_entity.inputMask;
         byte ov = old_entity.outputVector;
         System.out.println("Replacing instance");
-        world.setBlockState(new BlockPos(x, y, z), RedstoneGate.BLOCK_REDSTONE_GATE.getDefaultState());
+        world.setBlockState(new BlockPos(x, y, z), RedstoneGate.BLOCK_REDSTONE_GATE_POWERED.getDefaultState());
         TileEntityRedstoneGate new_entity = (TileEntityRedstoneGate)iblockaccess.getTileEntity(new BlockPos(x, y, z));
         new_entity.truthTable = tt;
         new_entity.inputMask = im;
         new_entity.outputVector = ov;
 
-        return iblockaccess.getBlockState(new BlockPos(x, y, z)).getBlock() == RedstoneGate.BLOCK_REDSTONE_GATE;
+        return iblockaccess.getBlockState(new BlockPos(x, y, z)).getBlock() == RedstoneGate.BLOCK_REDSTONE_GATE_POWERED;
     }
 }
