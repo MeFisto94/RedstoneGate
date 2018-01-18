@@ -1,5 +1,7 @@
 package com.github.mefisto94.RedstoneGate;
 
+import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
+import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.state.IBlockState;
@@ -237,6 +239,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
     }
 
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbtTagCompound) {
         super.writeToNBT(nbtTagCompound);
         nbtTagCompound.setByte("delay", delay);
@@ -246,6 +249,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         return nbtTagCompound;
     }
 
+    @Override
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
         super.readFromNBT(nbtTagCompound);
         inputMask = nbtTagCompound.getByte("inputs");
@@ -325,7 +329,6 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (32 > i) {
             this.truthTable ^= 1 << i;
-            sendUpdates();
             return null;
         }
         // Input/Output Matrix.
@@ -346,15 +349,6 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public void setInventorySlotContents(int i, ItemStack itemstack) {
     }
 
-
-    private void sendUpdates() {
-        //worldObj.markBlockRangeForRenderUpdate(pos, pos);
-        worldObj.notifyBlockUpdate(pos, worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3); // take defaultBlockState?
-        worldObj.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
-        //worldObj.markBlockRangeForRenderUpdate();
-        markDirty();
-    }
-
     @Override
     public String getName() {
         return "Redstone Gate";
@@ -368,7 +362,6 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public int getInventoryStackLimit() {
         return 1;
     }
-
 
     @Override
     public boolean isUseableByPlayer(EntityPlayer entityplayer) {
@@ -386,12 +379,10 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {
-    }
+    public void openInventory(EntityPlayer player) { }
 
     @Override
-    public void closeInventory(EntityPlayer player) {
-    }
+    public void closeInventory(EntityPlayer player) { }
 
     @Override
     public boolean isItemValidForSlot(int index, ItemStack stack) {
@@ -411,5 +402,11 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
 
     @Override
     public void clear() {
+    }
+
+    @Override
+    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
+        //return super.shouldRefresh(world, pos, oldState, newSate);
+        return false;
     }
 }

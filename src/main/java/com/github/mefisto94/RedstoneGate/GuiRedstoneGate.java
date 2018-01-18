@@ -1,5 +1,7 @@
 package com.github.mefisto94.RedstoneGate;
 
+import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
+import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.texture.ITextureObject;
@@ -7,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -140,8 +143,7 @@ public class GuiRedstoneGate extends GuiContainer {
         }
         else if (i == 1 || i == mc.gameSettings.keyBindInventory.getKeyCode()) {
             mc.thePlayer.closeScreen();
-            mc.theWorld.notifyNeighborsOfStateChange(entityGate.getPos(), entityGate.getBlockType());
-            mc.theWorld.notifyBlockOfStateChange(entityGate.getPos(), entityGate.getBlockType());
+            RedstoneGatePacketHandler.INSTANCE.sendToServer(new UpdateGateMessage(entityGate));
         }
         else if (0 <= "0123456789ABCDEFabcdef".indexOf(c)) {
             this.code_entry = true;

@@ -1,10 +1,11 @@
 package com.github.mefisto94.RedstoneGate;
 
+import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
+import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
+import com.github.mefisto94.RedstoneGate.network.UpdateGateMessageHandler;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.RegistryEvent;
@@ -65,6 +66,9 @@ public class RedstoneGate
 
         ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE_UNPOWERED.getRegistryName());
         GameRegistry.register(ITEM_REDSTONE_GATE);
+
+        RedstoneGatePacketHandler.INSTANCE.registerMessage(UpdateGateMessageHandler.class, UpdateGateMessage.class,
+                RedstoneGatePacketHandler.PACKET_ID++, Side.SERVER);
     }
 
     @EventHandler
