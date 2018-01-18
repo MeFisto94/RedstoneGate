@@ -51,7 +51,7 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
         boolean shouldBePowered = tile_entity.outputVector != 0;//this.shouldBePowered(worldIn, pos, state);
         if (this.isRepeaterPowered && !shouldBePowered) {
             worldIn.setBlockState(pos, getUnpoweredState(state), 2);
-        } else if (!this.isRepeaterPowered) {
+        } else if (!this.isRepeaterPowered && shouldBePowered) {
             worldIn.setBlockState(pos, getPoweredState(state), 2);
         }
 
@@ -88,7 +88,9 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
 
         if (!canBlockStay((World)world, pos)) {
             dropBlockAsItem((World) world, pos, this.getDefaultState(), 0);
-            ((World) world).setBlockState(pos, getDefaultState());
+            ((World) world).setBlockToAir(pos);
+
+            //((World) world).setBlockState(pos, getDefaultState());
             ((World) world).notifyBlockOfStateChange(pos, this);
             ((World) world).notifyNeighborsOfStateChange(pos, this);
             return;
