@@ -37,10 +37,10 @@ public class RedstoneGate
 
     // Blocks
     public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
-    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_UNPOWERED = new BlockRedstoneGate(false);
-    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_POWERED = new BlockRedstoneGate(true);
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_UNPOWERED = new BlockRedstoneGate();
+    //public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_POWERED = new BlockRedstoneGate();
 
-    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE_POWERED);
+    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE_UNPOWERED);
 
     public static RedstoneGate instance;
 
@@ -58,8 +58,8 @@ public class RedstoneGate
         syncConfig();
 
         GameRegistry.registerTileEntity(TileEntityRedstoneGate.class, TileEntityRedstoneGate.class.getSimpleName());
-        GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
-        GameRegistry.register(BLOCK_REDSTONE_GATE_POWERED);
+        //GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
+        //GameRegistry.register(BLOCK_REDSTONE_GATE_POWERED);
         GameRegistry.register(BLOCK_REDSTONE_GATE_UNPOWERED);
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
@@ -113,5 +113,13 @@ public class RedstoneGate
                 config.save();
             }
         }
+    }
+
+    public static byte boolean_to_bit(boolean b) {
+        return b ? (byte)0x1 : (byte)0x0;
+    }
+
+    public static boolean bit_to_boolean(byte b) {
+        return (b & 0x1) != 0;
     }
 }

@@ -40,6 +40,11 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public byte delay = 0;
 
     public byte outputVector = 0;
+    /**
+     * This essentially denotes if a Block#updateTick() is still pending.
+     * Every time onNeighborChange is called, it will set this to false,
+     * and the actual tick will set it to true again
+     */
     public boolean canUpdate = true;
 
     private boolean isInvalidConfig(int inputMask, int outputMask) {
@@ -299,7 +304,7 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     @Override
     public ItemStack getStackInSlot(int i) {
         if (i != 45) return null;
-        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE_POWERED);
+        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE_UNPOWERED);
     }
 
     public ItemStack decrStackSize(int i, int j) {

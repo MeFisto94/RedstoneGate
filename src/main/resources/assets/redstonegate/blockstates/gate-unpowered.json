@@ -1,9 +1,13 @@
 {
   "variants": {
-    "facing=south": { "model": "redstonegate:gate-unpowered" },
-    "facing=west": { "model": "redstonegate:gate-unpowered", "y": 90 },
-    "facing=north": { "model": "redstonegate:gate-unpowered", "y": 180 },
-    "facing=east": { "model": "redstonegate:gate-unpowered", "y": 270 },
+    "facing=south,powered=true": { "model": "redstonegate:gate-powered" },
+    "facing=south,powered=false": { "model": "redstonegate:gate-unpowered" },
+    "facing=west,powered=true": { "model": "redstonegate:gate-powered", "y": 90 },
+    "facing=west,powered=false": { "model": "redstonegate:gate-unpowered", "y": 90 },
+    "facing=north,powered=true": { "model": "redstonegate:gate-powered", "y": 180 },
+    "facing=north,powered=false": { "model": "redstonegate:gate-unpowered", "y": 180 },
+    "facing=east,powered=true": { "model": "redstonegate:gate-powered", "y": 270 },
+    "facing=east,powered=false": { "model": "redstonegate:gate-unpowered", "y": 270 },
     "normal": { "model": "redstonegate:gate-unpowered" },
     "inventory": { "model": "redstonegate:gate-unpowered" }
   }

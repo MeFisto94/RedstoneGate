@@ -1,10 +1,9 @@
 package com.github.mefisto94.RedstoneGate;
 
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockRedstoneDiode;
-import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -26,73 +25,89 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntityProvider {
+public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityProvider {
     protected static final AxisAlignedBB REDSTONE_GATE_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
+    public static final PropertyBool POWERED = PropertyBool.create("powered");
 
-    protected BlockRedstoneGate(boolean powered) {
-        super(powered);
+    protected BlockRedstoneGate() {
+        super(Material.CIRCUITS);
 
         if (!(this instanceof BlockOldRedstoneGate)) { // don't double register names
-            setRegistryName("redstonegate", "gate" + (powered ? "-powered" : "-unpowered"));
+            setRegistryName("redstonegate", "gate" + (false ? "-powered" : "-unpowered"));
             setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
             setCreativeTab(CreativeTabs.REDSTONE);
         }
 
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(POWERED, false));
         this.isBlockContainer = true;
+    }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return REDSTONE_GATE_AABB;
     }
 
     @Override
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+        boolean powered = state.getValue(POWERED);
         byte old_vector = tile_entity.outputVector;
         tile_entity.RecomputeOutput(worldIn, pos);
 
         boolean shouldBePowered = tile_entity.outputVector != 0;//this.shouldBePowered(worldIn, pos, state);
-        if (this.isRepeaterPowered && !shouldBePowered) {
-            worldIn.setBlockState(pos, getUnpoweredState(state), 2);
-        } else if (!this.isRepeaterPowered && shouldBePowered) {
-            worldIn.setBlockState(pos, getPoweredState(state), 2);
+
+        if (powered && !shouldBePowered) {
+            //worldIn.setBlockState(pos, getUnpoweredState(state), 2);
+            updateBlockState(worldIn, pos, getUnpoweredState(state));
+        } else if (!powered && shouldBePowered) {
+            //worldIn.setBlockState(pos, getPoweredState(state), 2);
+            updateBlockState(worldIn, pos, getPoweredState(state));
         }
 
         if (tile_entity.outputVector == old_vector) {
             tile_entity.canUpdate = true;
 
-            if (!isRepeaterPowered && !shouldBePowered) {
-                worldIn.updateBlockTick(pos, getPoweredState(state).getBlock(), getTickDelay(state), -1);
+            if (!powered && !shouldBePowered) {
+                worldIn.updateBlockTick(pos, state.getBlock(), 2, -1);
             }
 
             return;
         }
 
-        if (!isRepeaterPowered && !shouldBePowered) {
-            worldIn.updateBlockTick(pos, getPoweredState(state).getBlock(), getTickDelay(state), -1);
+        if (!powered && !shouldBePowered) {
+            worldIn.updateBlockTick(pos, state.getBlock(), 2, -1);
         }
 
-        worldIn.notifyNeighborsOfStateChange(pos, this);
-        worldIn.notifyBlockOfStateChange(pos, this);
+        //worldIn.notifyNeighborsOfStateChange(pos, this);
+        //worldIn.notifyBlockOfStateChange(pos, this);
         worldIn.scheduleBlockUpdate(pos, this, tile_entity.delay == 0 ? 2 : tile_entity.delay * 2, -1);
     }
 
-    // Used to be "isPoweringTo"
-    @Override
     protected int getPowerOnSide(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-        if ((tile_entity.outputVector & 1 << side.getIndex()) == 0) return 0;
-        return 15;
+        if ((tile_entity.outputVector & (1 << side.getIndex())) == 0) {
+            return 0;
+        } else {
+            return 15;
+        }
     }
 
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)world.getTileEntity(pos);
+        // only seems called when I put another RedstoneGate next to it, but only then!!
+    }
 
-        if (!canBlockStay((World)world, pos)) {
-            dropBlockAsItem((World) world, pos, this.getDefaultState(), 0);
-            ((World) world).setBlockToAir(pos);
+    @Override
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
+        TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+
+        if (!canBlockStay(worldIn, pos)) {
+            dropBlockAsItem(worldIn, pos, this.getDefaultState(), 0);
+            worldIn.setBlockToAir(pos);
 
             //((World) world).setBlockState(pos, getDefaultState());
-            ((World) world).notifyBlockOfStateChange(pos, this);
-            ((World) world).notifyNeighborsOfStateChange(pos, this);
+            worldIn.notifyBlockOfStateChange(pos, this);
+            worldIn.notifyNeighborsOfStateChange(pos, this);
             return;
         }
 
@@ -102,7 +117,24 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
 
         tile_entity.canUpdate = false;
         int delay = tile_entity.delay;
-        ((World) world).scheduleBlockUpdate(pos, this, delay * 2, -1);
+        worldIn.scheduleBlockUpdate(pos, this, delay * 2, -1);
+    }
+
+    @Override
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return super.canConnectRedstone(state, world, pos, side); // Used to determine where redstone could be placed
+    }
+
+
+    // @TODO: Weak Power as well?
+    @Override
+    public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        return getPowerOnSide(blockAccess, pos, side);
+    }
+
+    @Override
+    public boolean canProvidePower(IBlockState state) {
+        return true;
     }
 
     @Override
@@ -111,6 +143,7 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
         if (!worldIn.isRemote) {
             playerIn.openGui(RedstoneGate.instance, GUIHandler.getGuiID(), worldIn, pos.getX(), pos.getY(), pos.getZ());
         }
+
         return true;
     }
 
@@ -122,9 +155,21 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
         ((TileEntityRedstoneGate)worldIn.getTileEntity(pos)).inputMask = (byte)(((TileEntityRedstoneGate)worldIn.getTileEntity(pos)).inputMask | l << 6);
     }
 
+    @Override
+    public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
+        return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite()); // See BlockRedstoneDiode
+    }
 
-    // @TODO: Find out whether these overrides differ from the standard implementation of Block?
-    // Probably not every Block notifies neighbors?
+    protected void updateBlockState(World worldIn, BlockPos pos, IBlockState state) {
+        // Copied from BlockButton
+        worldIn.setBlockState(pos, state.withProperty(POWERED, Boolean.valueOf(true)), 3);
+        worldIn.markBlockRangeForRenderUpdate(pos, pos);
+        worldIn.notifyNeighborsOfStateChange(pos, this);
+        worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));
+    }
+
+
+    // Not every Block notifies neighbors.
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
         super.onBlockAdded(worldIn, pos, state);
@@ -137,22 +182,19 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
         worldIn.notifyNeighborsOfStateChange(pos, this);
     }
 
-    // Satisfy BlockRedstoneDiode
-    @Override
-    protected int getDelay(IBlockState state) {
-        return 1;
-    }
-
-    @Override
+    // From BlockRedstoneDiode
     protected IBlockState getPoweredState(IBlockState unpoweredState) {
-        EnumFacing enumfacing = (EnumFacing)unpoweredState.getValue(FACING);
-        return RedstoneGate.BLOCK_REDSTONE_GATE_POWERED.getDefaultState().withProperty(FACING, enumfacing);
+        EnumFacing enumfacing = unpoweredState.getValue(FACING);
+        return unpoweredState.withProperty(FACING, enumfacing).withProperty(POWERED, true);
     }
 
-    @Override
     protected IBlockState getUnpoweredState(IBlockState poweredState) {
-        EnumFacing enumfacing = (EnumFacing)poweredState.getValue(FACING);
-        return RedstoneGate.BLOCK_REDSTONE_GATE_UNPOWERED.getDefaultState().withProperty(FACING, enumfacing);
+        EnumFacing enumfacing = poweredState.getValue(FACING);
+        return poweredState.withProperty(FACING, enumfacing).withProperty(POWERED, false);
+    }
+
+    public boolean canBlockStay(World worldIn, BlockPos pos) {
+        return worldIn.getBlockState(pos.down()).isFullyOpaque();
     }
 
     // Copied from BlockRedstoneRepeater. There they did not appear as Deprecated to the IDE
@@ -190,7 +232,7 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        if (this.isRepeaterPowered)
+        if (stateIn.getValue(POWERED))
         {
             EnumFacing enumfacing = (EnumFacing)stateIn.getValue(FACING);
             double d0 = (double)((float)pos.getX() + 0.5F) + (double)(rand.nextFloat() - 0.5F) * 0.2D;
@@ -216,7 +258,8 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
      */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta))
+            .withProperty(POWERED, RedstoneGate.bit_to_boolean((byte)(meta >> 2)));
     }
 
     /**
@@ -225,13 +268,14 @@ public class BlockRedstoneGate extends BlockRedstoneDiode implements ITileEntity
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
+        i |= (state.getValue(FACING)).getHorizontalIndex(); // 0..3, that's 2 bits
+        i |= (RedstoneGate.boolean_to_bit(state.getValue(POWERED)) << 2); // 0..1, that's 1 bit
         return i;
     }
 
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] {FACING});
+        return new BlockStateContainer(this, new IProperty[] { FACING, POWERED });
     }
 
     /**
