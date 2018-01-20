@@ -114,8 +114,8 @@ public class RedstoneGate
                     "rarely make sense. Default: 30. See " + docURL + "io-config.md for more info");
             Property propIONotifyChatOnIterationOverflow = config.get(Configuration.CATEGORY_GENERAL,
                     "io.iteration-overflow.notify-chat", true, "When the io.iteration-depth.max " +
-                    "is exceeded print a notification to the chat, so it can be fixed. Warning: If the circuit is pulsed " +
-                    " at a higher rate, this might spam your chat. Default: true.");
+                    "is exceeded print a notification to the chat, so it can be fixed. Warning: If the circuit is pulsed" +
+                    " at a high rate, this might spam your chat. Default: true.");
 
             conf_colorOn = propColorOn.getInt();
             conf_colorOff = propColorOff.getInt();
