@@ -30,6 +30,7 @@ public class UpdateGateMessageHandler implements IMessageHandler<UpdateGateMessa
 
                     // Update on all clients
                     serverPlayer.getServerWorld().notifyBlockUpdate(message.getPos(), state, state, 3);
+                    serverPlayer.getServerWorld().scheduleBlockUpdate(message.getPos(), state.getBlock(), 0, -1);
                     //serverPlayer.inventory.addItemStackToInventory(new ItemStack(Items.DIAMOND, 64));
                 }
             });

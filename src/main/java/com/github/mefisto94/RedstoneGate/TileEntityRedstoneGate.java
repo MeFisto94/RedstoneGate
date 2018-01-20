@@ -230,14 +230,14 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         for (int d = 5; 0 <= d; --d) {
             if ((inputMask & 1 << d) == 0) continue;
             bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (this.isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | outputVector >> dirmap[d] & 1;
+            index = index << 1 | (isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | outputVector >> dirmap[d] & 1;
         }
         this.outputVector = 0;
         long table = this.truthTable & -1;
         int d2 = 0;
         while (d2 < 6) {
             if ((this.outputMask & 1 << d2) != 0) {
-                this.outputVector = (byte)(this.outputVector | (byte)((table >> index & 1) << dirmap[d2]));
+                this.outputVector = (byte)(outputVector | (byte)((table >> index & 1) << dirmap[d2]));
                 index += bitcount;
             }
             ++d2;
@@ -261,17 +261,17 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         delay = nbtTagCompound.getByte("delay");
         truthTable = nbtTagCompound.getInteger("table");
         if (nbtTagCompound.hasKey("outputs")) {
-            this.outputMask = nbtTagCompound.getByte("outputs");
+            outputMask = nbtTagCompound.getByte("outputs");
             return;
         }
-        this.outputMask = (byte)(~ this.inputMask & 63);
+        outputMask = (byte)(~ inputMask & 63);
     }
 
     // The following three methods seem required to update TileEntities over the network
     @Override
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
+        return new SPacketUpdateTileEntity(pos, 0, this.getUpdateTag());
     }
 
     @Override

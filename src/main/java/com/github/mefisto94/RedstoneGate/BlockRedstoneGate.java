@@ -24,10 +24,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityProvider {
     protected static final AxisAlignedBB REDSTONE_GATE_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
     public static final PropertyBool POWERED = PropertyBool.create("powered");
+    public static final Logger LOG = Logger.getLogger(BlockRedstoneGate.class.getSimpleName());
 
     protected BlockRedstoneGate() {
         super(Material.CIRCUITS);
@@ -49,43 +52,32 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
 
     @Override
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
+        LOG.log(Level.INFO, "[" + pos.toString() + "]: Ticking");
+
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
         boolean powered = state.getValue(POWERED);
         byte old_vector = tile_entity.outputVector;
         tile_entity.RecomputeOutput(worldIn, pos);
 
-        boolean shouldBePowered = tile_entity.outputVector != 0;//this.shouldBePowered(worldIn, pos, state);
+        boolean shouldBePowered = tile_entity.outputVector != 0;
 
         if (powered && !shouldBePowered) {
-            //worldIn.setBlockState(pos, getUnpoweredState(state), 2);
             updateBlockState(worldIn, pos, getUnpoweredState(state));
+            LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to UNPOWERED STATE");
         } else if (!powered && shouldBePowered) {
-            //worldIn.setBlockState(pos, getPoweredState(state), 2);
             updateBlockState(worldIn, pos, getPoweredState(state));
+            LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to POWERED STATE");
         }
-
-        if (tile_entity.outputVector == old_vector) {
-            tile_entity.canUpdate = true;
-
-            if (!powered && !shouldBePowered) {
-                worldIn.updateBlockTick(pos, state.getBlock(), 2, -1);
-            }
-
-            return;
-        }
-
-        if (!powered && !shouldBePowered) {
-            worldIn.updateBlockTick(pos, state.getBlock(), 2, -1);
-        }
-
-        //worldIn.notifyNeighborsOfStateChange(pos, this);
-        //worldIn.notifyBlockOfStateChange(pos, this);
-        worldIn.scheduleBlockUpdate(pos, this, tile_entity.delay == 0 ? 2 : tile_entity.delay * 2, -1);
+        tile_entity.canUpdate = true;
     }
 
     protected int getPowerOnSide(IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-        if ((tile_entity.outputVector & (1 << side.getIndex())) == 0) {
+        boolean b = (tile_entity.outputVector & 0xFF & (1 << side.getIndex())) == 0;
+        if (!b) { // Reduce logging spam when side is unpowered.
+            LOG.log(Level.INFO, "[" + pos.toString() + "]: getPowerOnSide(" + side.toString() + ") = " + (b ? " 0" : " 15"));
+        }
+        if (tile_entity != null && (tile_entity.outputVector & 0xFF & (1 << side.getIndex())) == 0) {
             return 0;
         } else {
             return 15;
@@ -93,25 +85,22 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-        // only seems called when I put another RedstoneGate next to it, but only then!!
-    }
-
-    @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+        LOG.log(Level.INFO, "[" + pos.toString() + "]: neighborChanged...");
 
         if (!canBlockStay(worldIn, pos)) {
             dropBlockAsItem(worldIn, pos, this.getDefaultState(), 0);
             worldIn.setBlockToAir(pos);
 
-            //((World) world).setBlockState(pos, getDefaultState());
             worldIn.notifyBlockOfStateChange(pos, this);
             worldIn.notifyNeighborsOfStateChange(pos, this);
             return;
         }
 
         if (!tile_entity.canUpdate) {
+            LOG.log(Level.WARNING, "[" + pos.toString() + "]: A neighbor has been changed but we can't update yet again." +
+                    "This means the change had to be discarded. Try to reduce the delay");
             return;
         }
 
@@ -122,13 +111,19 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
 
     @Override
     public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        /* @TODO: Use to not allow redstone if there is no input/output defined? But that has the downside that you can
+        * only wire things up when you've configured them before.
+        */
         return super.canConnectRedstone(state, world, pos, side); // Used to determine where redstone could be placed
     }
 
-
-    // @TODO: Weak Power as well?
     @Override
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        return getPowerOnSide(blockAccess, pos, side);
+    }
+
+    @Override
+    public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
         return getPowerOnSide(blockAccess, pos, side);
     }
 
@@ -161,13 +156,9 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
     }
 
     protected void updateBlockState(World worldIn, BlockPos pos, IBlockState state) {
-        // Copied from BlockButton
-        worldIn.setBlockState(pos, state.withProperty(POWERED, Boolean.valueOf(true)), 3);
-        worldIn.markBlockRangeForRenderUpdate(pos, pos);
+        worldIn.setBlockState(pos, state, 3);
         worldIn.notifyNeighborsOfStateChange(pos, this);
-        worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));
     }
-
 
     // Not every Block notifies neighbors.
     @Override
