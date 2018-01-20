@@ -38,6 +38,7 @@ public class TileEntityRedstoneGate extends InventoryProviderTileEntity {
      */
     public boolean canUpdate = true;
 
+    /* CONFIG-START */
     private boolean isInvalidConfig(int inputMask, int outputMask) {
         int output_count = this.hammingWeight(outputMask & 63);
         int combinations = (1 << this.hammingWeight(inputMask & 63)) * output_count;
@@ -161,6 +162,7 @@ public class TileEntityRedstoneGate extends InventoryProviderTileEntity {
         }
         this.truthTable = (int)table;
     }
+    /* CONFIG-END */
 
     private boolean isPoweredWire(World world, BlockPos pos) {
         IBlockState wireState = world.getBlockState(pos);
@@ -215,7 +217,7 @@ public class TileEntityRedstoneGate extends InventoryProviderTileEntity {
     public void RecomputeOutput(World world, BlockPos pos) {
         int index = 0;
         int bitcount = 1;
-        int[] dirmap = relative_to_absolute_direction[(inputMask & 255) >> 6];
+        int[] dirmap = relative_to_absolute_direction[(inputMask & 0xFF) >> 6];
 
         /* Iterate over all directions */
         for (int d = 5; d >= 0; d--) {

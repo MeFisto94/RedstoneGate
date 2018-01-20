@@ -9,17 +9,23 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.entity.*;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.*;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -27,6 +33,8 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate.relative_to_absolute_direction;
 
 public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityProvider {
     protected static final AxisAlignedBB REDSTONE_GATE_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.125D, 1.0D);
@@ -49,23 +57,64 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
         return REDSTONE_GATE_AABB;
     }
 
+    protected byte compareBits(TileEntityRedstoneGate tile_entity, byte outVector, byte inMask) {
+        byte result = 0x0;
+        int[] dirmap = tile_entity.relative_to_absolute_direction[(tile_entity.inputMask & 0xFF) >> 6];
+        for (int d = 5; d >= 0; d--) {
+            boolean inSet = (inMask & (1 << d)) != 0;
+            boolean outSet = (outVector & (1 << dirmap[d])) != 0;
+            result |= (((inSet && outSet) ? 1 : 0) << d);
+        }
+
+        return result;
+    }
+
     @Override
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-        LOG.log(Level.INFO, "[" + pos.toString() + "]: Ticking");
-
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
+        //LOG.log(Level.INFO, "[" + pos.toString() + "]: Ticking");
+
         boolean powered = state.getValue(POWERED);
         byte old_vector = tile_entity.outputVector;
         tile_entity.RecomputeOutput(worldIn, pos);
 
-        boolean shouldBePowered = tile_entity.outputVector != 0;
+        /* START: Allow IOs to work (Self Triggering) */
+        byte changes = compareBits(tile_entity, RedstoneGate.diff_in_bits(old_vector, tile_entity.outputVector), tile_entity.inputMask);
+        if (RedstoneGate.self_triggering && changes != 0) {
+            if (RedstoneGate.honor_delay || tile_entity.delay < 2) {
+                //LOG.log(Level.INFO, "[" + pos.toString() + "]: We've just toggled one of our IOs, rescheduling.");
+                worldIn.scheduleBlockUpdate(pos, this, tile_entity.delay, -1);
+            } else {
+                int iteration_count = 0;
+                while (iteration_count < RedstoneGate.maxIterationDepth && changes != 0) {
+                    //LOG.log(Level.INFO, "[" + pos.toString() + "]: We've just toggled one of our IOs, recalculate.");
+                    old_vector = tile_entity.outputVector;
+                    tile_entity.RecomputeOutput(worldIn, pos);
+                    changes = compareBits(tile_entity, RedstoneGate.diff_in_bits(old_vector, tile_entity.outputVector), tile_entity.inputMask);
+                    iteration_count++;
+                }
 
+                if (iteration_count >= RedstoneGate.maxIterationDepth) {
+                    String s = "[" + pos.toString() + "]: Force-Quitted self-triggering since the " +
+                    "block exceeded the maxIterationDepth. Maybe someone caused an unwanted infinite loop?";
+
+                    LOG.log(Level.WARNING, s);
+                    if (RedstoneGate.notifyChatOnOverflow) {
+                        ITextComponent msg = new TextComponentString("[RedstoneGate-Mod]: " + s);
+                        worldIn.playerEntities.stream().forEach((p) -> p.addChatComponentMessage(msg));
+                    }
+                }
+            }
+        }
+        /* END: Allow IOs to work (Self Triggering) */
+
+        boolean shouldBePowered = tile_entity.outputVector != 0;
         if (powered && !shouldBePowered) {
             updateBlockState(worldIn, pos, getUnpoweredState(state));
-            LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to UNPOWERED STATE");
+            //LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to UNPOWERED STATE");
         } else if (!powered && shouldBePowered) {
             updateBlockState(worldIn, pos, getPoweredState(state));
-            LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to POWERED STATE");
+            //LOG.log(Level.INFO, "[" + pos.toString() + "]: Switching to POWERED STATE");
         }
         tile_entity.canUpdate = true;
     }
@@ -74,7 +123,7 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
         boolean b = (tile_entity.outputVector & 0xFF & (1 << side.getIndex())) == 0;
         if (!b) { // Reduce logging spam when side is unpowered.
-            LOG.log(Level.INFO, "[" + pos.toString() + "]: getPowerOnSide(" + side.toString() + ") = " + (b ? " 0" : " 15"));
+            //LOG.log(Level.INFO, "[" + pos.toString() + "]: getPowerOnSide(" + side.toString() + ") = " + (b ? " 0" : " 15"));
         }
         if (tile_entity != null && (tile_entity.outputVector & 0xFF & (1 << side.getIndex())) == 0) {
             return 0;
@@ -98,8 +147,8 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
         }
 
         if (!tile_entity.canUpdate) {
-            LOG.log(Level.WARNING, "[" + pos.toString() + "]: A neighbor has been changed but we can't update yet again." +
-                    "This means the change had to be discarded. Try to reduce the delay");
+            LOG.log(Level.WARNING, "[" + pos.toString() + "]: A neighbor has been changed but we can't update yet again. " +
+                "This means the change had to be discarded. Try to reduce the delay");
             return;
         }
 
