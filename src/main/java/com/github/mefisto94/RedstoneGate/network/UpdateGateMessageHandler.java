@@ -1,12 +1,10 @@
 package com.github.mefisto94.RedstoneGate.network;
 
-import com.github.mefisto94.RedstoneGate.TileEntityRedstoneGate;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;

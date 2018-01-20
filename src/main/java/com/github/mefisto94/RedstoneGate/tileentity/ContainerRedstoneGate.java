@@ -1,5 +1,6 @@
-package com.github.mefisto94.RedstoneGate;
+package com.github.mefisto94.RedstoneGate.tileentity;
 
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;

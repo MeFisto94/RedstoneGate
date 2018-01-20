@@ -1,13 +1,14 @@
-package com.github.mefisto94.RedstoneGate;
+package com.github.mefisto94.RedstoneGate.block;
 
+import com.github.mefisto94.RedstoneGate.gui.GUIHandler;
+import com.github.mefisto94.RedstoneGate.RedstoneGate;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -32,14 +33,12 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
     public static final PropertyBool POWERED = PropertyBool.create("powered");
     public static final Logger LOG = Logger.getLogger(BlockRedstoneGate.class.getSimpleName());
 
-    protected BlockRedstoneGate() {
+    public BlockRedstoneGate() {
         super(Material.CIRCUITS);
 
-        if (!(this instanceof BlockOldRedstoneGate)) { // don't double register names
-            setRegistryName("redstonegate", "gate" + (false ? "-powered" : "-unpowered"));
-            setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
-            setCreativeTab(CreativeTabs.REDSTONE);
-        }
+        setRegistryName("redstonegate", "gate");
+        setUnlocalizedName("redstonegate." + getRegistryName().getResourcePath());
+        setCreativeTab(CreativeTabs.REDSTONE);
 
         this.setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(POWERED, false));
         this.isBlockContainer = true;

@@ -9,6 +9,8 @@
     "facing=east,powered=true": { "model": "redstonegate:gate-powered", "y": 270 },
     "facing=east,powered=false": { "model": "redstonegate:gate-unpowered", "y": 270 },
     "normal": { "model": "redstonegate:gate-unpowered" },
-    "inventory": { "model": "redstonegate:gate-unpowered" }
+    "inventory": { "model": "redstonegate:gate-unpowered" },
+    "inventory,powered=true": { "model": "redstonegate:gate-powered" },
+    "inventory,powered=false": { "model": "redstonegate:gate-unpowered" }
   }
 }

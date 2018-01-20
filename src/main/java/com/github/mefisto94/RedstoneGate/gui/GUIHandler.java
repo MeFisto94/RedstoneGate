@@ -1,5 +1,7 @@
-package com.github.mefisto94.RedstoneGate;
+package com.github.mefisto94.RedstoneGate.gui;
 
+import com.github.mefisto94.RedstoneGate.tileentity.ContainerRedstoneGate;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;

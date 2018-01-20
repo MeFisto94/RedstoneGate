@@ -1,3 +1,1 @@
-tile.redstonegate.old-gate.name=Old Redstone Gate
-tile.redstonegate.gate-unpowered.name=Redstone Gate
-tile.redstonegate.gate-powered.name=Redstone Gate
+tile.redstonegate.gate.name=Redstone Gate

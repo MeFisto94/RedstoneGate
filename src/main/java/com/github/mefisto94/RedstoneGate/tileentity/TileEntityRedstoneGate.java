@@ -1,26 +1,17 @@
-package com.github.mefisto94.RedstoneGate;
+package com.github.mefisto94.RedstoneGate.tileentity;
 
-import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
-import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
+import com.github.mefisto94.RedstoneGate.gui.GuiRedstoneGate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneWire;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.EnumFaceDirection;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nullable;
-
-public class TileEntityRedstoneGate extends TileEntity implements IInventory {
+public class TileEntityRedstoneGate extends InventoryProviderTileEntity {
     public static final int MAX_DELAY = 16;
     public static final int DELAY_DECR = 15;
     public static final int OP_AND = 0;
@@ -48,11 +39,9 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
     public boolean canUpdate = true;
 
     private boolean isInvalidConfig(int inputMask, int outputMask) {
-        int outputcount = this.hammingWeight(outputMask & 63);
-        int combinations = (1 << this.hammingWeight(inputMask & 63)) * outputcount;
-        if (outputcount == 0) return true;
-        if (32 < combinations) return true;
-        return false;
+        int output_count = this.hammingWeight(outputMask & 63);
+        int combinations = (1 << this.hammingWeight(inputMask & 63)) * output_count;
+        return (output_count == 0 || combinations > 32);
     }
 
     public String getConfigString() {
@@ -62,8 +51,8 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
 
     public boolean setConfigString(String s) {
         try {
-            int im = Integer.parseInt(s.substring(0, 2), 16) & 63 | this.inputMask & 192;
-            int om = Integer.parseInt(s.substring(2, 4), 16) & 63 | this.outputMask & 192;
+            int im = Integer.parseInt(s.substring(0, 2), 16) & 63 | inputMask & 192;
+            int om = Integer.parseInt(s.substring(2, 4), 16) & 63 | outputMask & 192;
             long tt = Long.parseLong(s.substring(5, 13), 16);
             int meta = Integer.parseInt(s.substring(14, 15), 16);
             if (this.isInvalidConfig(im, om)) {
@@ -129,17 +118,17 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         for (int i = 32; 0 < i; i >>= 1) {
             final byte sb = (byte)(((selected & i) != 0x0) ? 1 : 0);
             final byte nb = (byte)(((negated & i) != 0x0) ? 1 : 0);
-            if ((this.inputMask & i) != 0x0) {
+            if ((inputMask & i) != 0x0) {
                 sInput = (byte)(sInput << 1 | sb);
                 nInput = (byte)(nInput << 1 | nb);
                 bitcount <<= 1;
             }
-            if ((this.outputMask & i) != 0x0) {
+            if ((outputMask & i) != 0x0) {
                 sOutput = (byte)(sOutput << 1 | sb);
                 nOutput = (byte)(nOutput << 1 | nb);
             }
         }
-        long table = this.truthTable & -1;
+        long table = truthTable & 0xFFFFFFFFL;
         final long max_val = (1L << bitcount) - 1L;
         if (operation == 3) {
             int i = 0;
@@ -184,10 +173,10 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
      * Note: direction is pairwise swapped with EnumFacing, as you can see.
      * This is our internal convention here, we leave it at this stage and might refactor it at a later point.
      *
-     * @param world
-     * @param pos
-     * @param direction
-     * @return
+     * @param world The World Element
+     * @param pos The BlockPosition
+     * @param direction The Direction which is queried as input (in Mod Format, which is opposite)
+     * @return Whether this side is powered
      */
     private boolean isSidePowered(World world, BlockPos pos, EnumFacing direction) {
         EnumFacing opposite = direction.getOpposite(); // Because of our wierd logic
@@ -227,20 +216,33 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         int index = 0;
         int bitcount = 1;
         int[] dirmap = relative_to_absolute_direction[(inputMask & 255) >> 6];
-        for (int d = 5; 0 <= d; --d) {
-            if ((inputMask & 1 << d) == 0) continue;
-            bitcount = (byte)(bitcount * 2);
-            index = index << 1 | (isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | outputVector >> dirmap[d] & 1;
-        }
-        this.outputVector = 0;
-        long table = this.truthTable & -1;
-        int d2 = 0;
-        while (d2 < 6) {
-            if ((this.outputMask & 1 << d2) != 0) {
-                this.outputVector = (byte)(outputVector | (byte)((table >> index & 1) << dirmap[d2]));
-                index += bitcount;
+
+        /* Iterate over all directions */
+        for (int d = 5; d >= 0; d--) {
+            if ((inputMask & (1 << d)) == 0) { // Not an input
+                continue;
             }
-            ++d2;
+
+            // Guess: bitcount is the mask for the highest set bit in index
+            bitcount = (byte)(bitcount * 2); // double the bitcount for each input?
+            index = index << 1 | // "Make space by shifting"
+                    (isSidePowered(world, pos, EnumFacing.VALUES[dirmap[d]]) ? 1 : 0) | // If we have an input there
+                    (outputVector >> dirmap[d]) & 1; // or we wanted to ouput there already
+                    // Note: for IO's which are triggered "NOW", outputVector still is zero
+        }
+
+        outputVector = 0;
+        long table = truthTable & 0xFFFFFFFFL; // Prevents expansion of the negate sign
+
+        /* Iterate again over all directions, but this time inverted in order */
+        for (int d = 0; d < 6; d++) {
+            if ((outputMask & (1 << d)) != 0) { // Is this an output
+                outputVector |= (byte)((  // is this index set? move it to it's position
+                    (table >> index) // table content for index
+                    & 0x1) // only get the last bit
+                    << dirmap[d]); // move it to the appropriate place in the output vector
+                index += bitcount; // load the next value in index.
+            }
         }
     }
 
@@ -267,46 +269,6 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         outputMask = (byte)(~ inputMask & 63);
     }
 
-    // The following three methods seem required to update TileEntities over the network
-    @Override
-    @Nullable
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(pos, 0, this.getUpdateTag());
-    }
-
-    @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        super.onDataPacket(net, pkt);
-        handleUpdateTag(pkt.getNbtCompound());
-    }
-
-    // Called when the server receives something
-    @Override
-    public void handleUpdateTag(NBTTagCompound tag) {
-        super.handleUpdateTag(tag);
-    }
-
-    @Override
-    public int getSizeInventory() {
-        return 48;
-    }
-
-    @Override
-    public int getFieldCount() {
-        return getSizeInventory(); // Not sure, but I guess that's the Number of available/filled Stacks
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int i) {
-        if (i != 45) return null;
-        return new ItemStack(RedstoneGate.BLOCK_REDSTONE_GATE_UNPOWERED);
-    }
-
     public ItemStack decrStackSize(int i, int j) {
         if (i < 0) return null;
         if (this.getSizeInventory() < i) {
@@ -314,13 +276,13 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         }
         if (i == 47) {
             String s = GuiRedstoneGate.copypastebuffer[j];
-            GuiRedstoneGate.setStatusMessage((String)(this.setConfigString(s) ? String.format("Pasted %s from slot %d", s, j) : ""));
+            GuiRedstoneGate.setStatusMessage((setConfigString(s) ? String.format("Pasted %s from slot %d", s, j) : ""));
             return null;
         }
         if (i == 46) {
             String s;
-            GuiRedstoneGate.copypastebuffer[j] = s = this.getConfigString();
-            GuiRedstoneGate.setStatusMessage((String)String.format("Copied %s to slot %d", s, j));
+            GuiRedstoneGate.copypastebuffer[j] = s = getConfigString();
+            GuiRedstoneGate.setStatusMessage(String.format("Copied %s to slot %d", s, j));
             return null;
         }
         if (i == 44) {
@@ -351,67 +313,8 @@ public class TileEntityRedstoneGate extends TileEntity implements IInventory {
         return null;
     }
 
-    public void setInventorySlotContents(int i, ItemStack itemstack) {
-    }
-
-    @Override
-    public String getName() {
-        return "Redstone Gate";
-    }
-
-    @Override
-    public boolean hasCustomName() {
-        return false;
-    }
-
-    public int getInventoryStackLimit() {
-        return 1;
-    }
-
-    @Override
-    public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-        if (worldObj.getTileEntity(getPos()) != this) {
-            return false;
-        }
-        if (entityplayer.getDistanceSq(getPos().add(0.5f, 0.5f, 0.5f)) > 64.0) return false;
-        return true;
-    }
-
-    // used to be: public ItemStack b(int var1) = func_48081_b. Best guess: removeStackFromSlot
-    @Override
-    public ItemStack removeStackFromSlot(int index) {
-        return null;
-    }
-
-    @Override
-    public void openInventory(EntityPlayer player) { }
-
-    @Override
-    public void closeInventory(EntityPlayer player) { }
-
-    @Override
-    public boolean isItemValidForSlot(int index, ItemStack stack) {
-        return false; // Don't permit items being placed
-    }
-
-    // @TODO: Implement. I guess these are for real inventories, but we want to discard anything?
-
-    @Override
-    public int getField(int id) {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value) {
-    }
-
-    @Override
-    public void clear() {
-    }
-
     @Override
     public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
-        //return super.shouldRefresh(world, pos, oldState, newSate);
-        return false;
+        return false; // Blockstate Changes (ON/OFF) shall not lead to a new TileEntity
     }
 }

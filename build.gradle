@@ -69,6 +69,7 @@ processResources
                 
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
+        println(project.version);
     }
         
     // copy everything else, thats not the mcmod.info

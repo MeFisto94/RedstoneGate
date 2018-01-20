@@ -1,7 +1,10 @@
-package com.github.mefisto94.RedstoneGate;
+package com.github.mefisto94.RedstoneGate.gui;
 
+import com.github.mefisto94.RedstoneGate.tileentity.ContainerRedstoneGate;
+import com.github.mefisto94.RedstoneGate.RedstoneGate;
 import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
 import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;

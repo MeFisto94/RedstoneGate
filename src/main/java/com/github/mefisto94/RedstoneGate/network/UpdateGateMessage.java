@@ -1,6 +1,6 @@
 package com.github.mefisto94.RedstoneGate.network;
 
-import com.github.mefisto94.RedstoneGate.TileEntityRedstoneGate;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -67,7 +67,7 @@ public class UpdateGateMessage implements IMessage {
     }
 
     /**
-     * Gets the NBT Tag representing the {@link com.github.mefisto94.RedstoneGate.TileEntityRedstoneGate }
+     * Gets the NBT Tag representing the {@link TileEntityRedstoneGate }
      * @return The NBT Tag
      */
     public NBTTagCompound getTag() {

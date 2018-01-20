@@ -1,8 +1,11 @@
 package com.github.mefisto94.RedstoneGate;
 
+import com.github.mefisto94.RedstoneGate.block.BlockRedstoneGate;
+import com.github.mefisto94.RedstoneGate.gui.GUIHandler;
 import com.github.mefisto94.RedstoneGate.network.RedstoneGatePacketHandler;
 import com.github.mefisto94.RedstoneGate.network.UpdateGateMessage;
 import com.github.mefisto94.RedstoneGate.network.UpdateGateMessageHandler;
+import com.github.mefisto94.RedstoneGate.tileentity.TileEntityRedstoneGate;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -36,11 +39,8 @@ public class RedstoneGate
     public static int conf_colorIO  = 0x606000;
 
     // Blocks
-    public static final BlockOldRedstoneGate BLOCK_OLD_REDSTONE_GATE = new BlockOldRedstoneGate();
-    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_UNPOWERED = new BlockRedstoneGate();
-    //public static final BlockRedstoneGate BLOCK_REDSTONE_GATE_POWERED = new BlockRedstoneGate();
-
-    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE_UNPOWERED);
+    public static final BlockRedstoneGate BLOCK_REDSTONE_GATE = new BlockRedstoneGate();
+    public static final ItemBlock ITEM_REDSTONE_GATE = new ItemBlock(BLOCK_REDSTONE_GATE);
 
     public static RedstoneGate instance;
 
@@ -58,27 +58,17 @@ public class RedstoneGate
         syncConfig();
 
         GameRegistry.registerTileEntity(TileEntityRedstoneGate.class, TileEntityRedstoneGate.class.getSimpleName());
-        //GameRegistry.register(BLOCK_OLD_REDSTONE_GATE);
-        //GameRegistry.register(BLOCK_REDSTONE_GATE_POWERED);
-        GameRegistry.register(BLOCK_REDSTONE_GATE_UNPOWERED);
-
+        GameRegistry.register(BLOCK_REDSTONE_GATE);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
-
-        ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE_UNPOWERED.getRegistryName());
+        ITEM_REDSTONE_GATE.setRegistryName(BLOCK_REDSTONE_GATE.getRegistryName());
         GameRegistry.register(ITEM_REDSTONE_GATE);
-
         RedstoneGatePacketHandler.INSTANCE.registerMessage(UpdateGateMessageHandler.class, UpdateGateMessage.class,
-                RedstoneGatePacketHandler.PACKET_ID++, Side.SERVER);
+            RedstoneGatePacketHandler.PACKET_ID++, Side.SERVER);
     }
 
     @EventHandler
     @SideOnly(Side.CLIENT)
     public void PreInit_ClientOnly(FMLPreInitializationEvent event) {
-        /*final int DEFAULT_ITEM_SUBTYPE = 0;
-        ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_REPEATER, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(FAST_REPEATER_BLOCK_UNPOWERED.getRegistryName(), "inventory"));
-        ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_UNL_WIRE, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(UNL_BLOCK_REDSTONE_WIRE.getRegistryName(), "inventory"));
-        ModelLoader.setCustomModelResourceLocation(ITEM_BLOCK_TORCH, DEFAULT_ITEM_SUBTYPE, new ModelResourceLocation(FAST_TORCH_BLOCK_LIT.getRegistryName(), "inventory"));
-        */
     }
 
     @EventHandler
