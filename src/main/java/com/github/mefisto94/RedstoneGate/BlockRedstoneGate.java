@@ -106,7 +106,16 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
 
         tile_entity.canUpdate = false;
         int delay = tile_entity.delay;
-        worldIn.scheduleBlockUpdate(pos, this, delay * 2, -1);
+        if (delay == 0) {
+            /*
+             * NOTE: This is actually bad behavior but it makes the above warning go away. Usually you would have to wait long
+             * time even with delay=0 for updateTicks to happen, this means that many events got choked right after that.
+             * So we do what had to be done
+             */
+            this.updateTick(worldIn, pos, state, null);
+        } else {
+            worldIn.scheduleBlockUpdate(pos, this, delay * 2, -1);
+        }
     }
 
     @Override
