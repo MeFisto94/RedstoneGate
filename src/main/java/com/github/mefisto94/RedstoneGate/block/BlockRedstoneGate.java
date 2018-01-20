@@ -147,8 +147,8 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
         }
 
         if (!tile_entity.canUpdate) {
-            LOG.log(Level.WARNING, "[" + pos.toString() + "]: A neighbor has been changed but we can't update yet again. " +
-                "This means the change had to be discarded. Try to reduce the delay");
+            //LOG.log(Level.WARNING, "[" + pos.toString() + "]: A neighbor has been changed but we can't update yet again. " +
+            //    "This means the change had to be discarded. Try to reduce the delay");
             return;
         }
 
