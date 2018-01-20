@@ -135,7 +135,7 @@ public class BlockRedstoneGate extends BlockHorizontal implements ITileEntityPro
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
         TileEntityRedstoneGate tile_entity = (TileEntityRedstoneGate)worldIn.getTileEntity(pos);
-        LOG.log(Level.INFO, "[" + pos.toString() + "]: neighborChanged...");
+        //LOG.log(Level.INFO, "[" + pos.toString() + "]: neighborChanged...");
 
         if (!canBlockStay(worldIn, pos)) {
             dropBlockAsItem(worldIn, pos, this.getDefaultState(), 0);
