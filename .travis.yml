@@ -53,7 +53,9 @@ cache:
 
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
+  api_key:
+    secure: Nk/26vu5olzqMTzlCY+jwFiadVNL1oz37Gpu74o0NTziL21HTPF+Y4c/yCEixz+gI5Q+oy369/SChMueGWiD0OwsjIxNVfwSK15pCcOxCt6OwBJSmsoF0Px0lbivJbsoISqm6BNk+D0SDihoBPVxMJMVQDYFQIlN9K4+oZx1FBjzdFYmkcN+UlvhOHAbjNH7lFkVAvF+6+AbDd5fuAZGBNNa+cdzGoTKCtKgRcbTgpPqCIVsQb44+Y1GWinnDpo8uZ+t9tJMGXBmHvqvCLp25Gz9LogYrwoDGc+ju7qcLy3XxCucP0MO1E7D5SzEHdRod1Sk+NhfIfzLA6qP/8oTJuMQ8OBD6T7ALOdaAFeI5C6CJsEUYrccMSHZi1se9011xlwfBifwJvfdv00TaNHDr9YzClx74Lmfoq7MEYLxn2V0FGHUU9T3ECw21lkkTHwU9CWUtYdyWL4OGKCBChdkttkI4DmBn3Nu3iMyTd31OILezrjRcILECQHffBmTkyFHjqRrQ4YQMnYf1qX84V0LkO6eldh/+PWlFHNUWZOEXGeI43sm+yBjZ5GL2GOy/8NEmZWBvQ6MOEaIx/qUVZ2zWIHhsc7h5Clr6j7DvHgGj2p9s0lnU2YUGDcBqRSt6sHtmj5rjeLCFs+Uv3Iz3caO/eqhhquovqyRWuVnBUlsfRs=
+
   file_glob: true
   file: "build/libs/redstone*.jar"
   skip_cleanup: true
