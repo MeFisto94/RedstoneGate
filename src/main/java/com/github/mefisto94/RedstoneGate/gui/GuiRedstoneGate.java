@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11;
 // @TODO: Match the Numbers to the constants
 @SideOnly(Side.CLIENT)
 public class GuiRedstoneGate extends GuiContainer {
-    public static final String BACKGROUND_IMAGE = "/textures/gui.png";
+    public static final String BACKGROUND_IMAGE = "textures/gui.png";
     public static final int GUI_WIDTH = 176;
     public static final int GUI_HEIGHT = 170;
     public static final int FIRST_GRID_ID = 0;
