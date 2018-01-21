@@ -50,3 +50,12 @@ cache:
     - $HOME/.gradle/caches
     # So gradle isn't downloaded every time.
     - $HOME/.gradle/wrapper
+
+deploy:
+  provider: releases
+  api_key: "GITHUB OAUTH TOKEN"
+  file_glob: true
+  file: "build/libs/redstone*.jar"
+  skip_cleanup: true
+  on:
+    tags: true
